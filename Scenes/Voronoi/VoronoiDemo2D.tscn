@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://6lcq7vknihp8"]
+
+[ext_resource type="Script" path="res://Scripts/Voronoi/voronoi_demo_2d.gd" id="1_r8oho"]
+
+[node name="VoronoiDemo2d" type="Node2D"]
+script = ExtResource("1_r8oho")

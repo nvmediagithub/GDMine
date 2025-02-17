@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://omrmrohquj6p"]
+
+[ext_resource type="Script" path="res://Scripts/Worley/coherent_noise_polygons_3d_demo.gd" id="1_dt8rp"]
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://Scenes/FreeCamera/CameraRig.tscn" id="2_k05cv"]
+
+[node name="CoherentNoisePolygons3dDemo" type="Node3D"]
+script = ExtResource("1_dt8rp")
+seed_count = 16
+cell_size = 16
+extrusion_height = 2.0
+
+[node name="CameraRig" parent="." instance=ExtResource("2_k05cv")]
+transform = Transform3D(1, 0, 0, 0, 0.877933, 0.478784, 0, -0.478784, 0.877933, 0, 1.9151, 0)

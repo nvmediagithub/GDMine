@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://dvsubiqrmww5"]
+
+[ext_resource type="Script" path="res://Scripts/CellStructure/cell_structure_demo_3d.gd" id="1_lbh1w"]
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://Scenes/FreeCamera/CameraRig.tscn" id="2_ropmc"]
+
+[node name="CellStructureDemo3d" type="Node3D"]
+script = ExtResource("1_lbh1w")
+
+[node name="CameraRig" parent="." instance=ExtResource("2_ropmc")]

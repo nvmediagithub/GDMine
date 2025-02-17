@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://d1ga3cec5qfdn"]
+
+[ext_resource type="PackedScene" uid="uid://cq7bn36xhgosl" path="res://Scenes/CellStructure/chunk_manager_3d.tscn" id="2_4f1d7"]
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://Scenes/FreeCamera/CameraRig.tscn" id="2_uttyp"]
+[ext_resource type="PackedScene" uid="uid://bcb561tcmroxe" path="res://Scenes/CellStructure/chunk_3d.tscn" id="3_d8qa4"]
+
+[node name="Main" type="Node3D"]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+
+[node name="CameraRig" parent="." instance=ExtResource("2_uttyp")]
+transform = Transform3D(1, 0, 0, 0, 0.912734, 0.408553, 0, -0.408553, 0.912734, 0, 1.37783, 2.52661)
+
+[node name="ChunkManager3D" parent="." instance=ExtResource("2_4f1d7")]
+visible = false
+
+[node name="Chunk3D" parent="." instance=ExtResource("3_d8qa4")]
