@@ -9,7 +9,11 @@ var chunks: Dictionary = {}  # ключ: Vector2i, значение: Chunk3D у�
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2i(0,0))
 	load_chunk(Vector2i(0,0))
-	#expand_structure()
+	var points: Array[CellPoint] = generate_child_rays(start_point, 0, 2, 0.5, 1, deg_to_rad(90))
+	var c: Chunk3D = chunks[Vector2i(0,0)]
+	c.slice.add_line(CellLine.new(start_point, points[0]))
+	c.slice.add_line(CellLine.new(start_point, points[1]))
+	expand_structure()
 	
 
 func get_chunk_key_for_point(point: Vector2i) -> Vector2i:
@@ -76,47 +80,55 @@ func get_loaded_chunks() -> Array:
 	
 func expand_structure(connection_threshold: float = 300.0) -> void:
 	for chunk: Chunk3D in chunks.values():
-		if not chunk.slice.need_expand:
-			continue
-		var new_lines: Array[CellLine] = []
-		for chunk_line: CellLine in chunk.slice.lines:
-			var p_start: CellPoint = chunk_line.start
-			var p_end: CellPoint = chunk_line.end
-			if p_end.has_emitted:
+		# TODO(Orlanat):  fix add slice, this can not be null
+		if chunk.slice != null:
+			if not chunk.slice.need_expand:
 				continue
-			p_end.has_emitted = true
-			var base_direction: float = calculate_angle(p_start.position, p_end.position)
-			var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 3, 40.0, 60.0, deg_to_rad(90.0))
-			for target_point: CellPoint in target_points:
-				for line: CellLine in chunk.lines:
-					var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
-					if inter != null:
-						target_point = line.end
-						#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
+		var new_lines: Array[CellLine] = []
+		# TODO(Orlanat):  fix add slice, this can not be null
+		if chunk.slice != null:
+			for chunk_line: CellLine in chunk.slice.lines:
+				var p_start: CellPoint = chunk_line.start
+				var p_end: CellPoint = chunk_line.end
+				if p_end.has_emitted:
+					continue
+				p_end.has_emitted = true
+				var base_direction: float = calculate_angle(p_start.position, p_end.position)
+				var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 3, 40.0, 60.0, deg_to_rad(90.0))
+				for target_point: CellPoint in target_points:
+					for line: CellLine in chunk.slice.lines:
+						var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
+						if inter != null:
+							target_point = line.end
+							#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
+					var k: Vector2i = chunks.find_key(chunk) 
+					var neighbor_keys: Array[Vector2i] = get_neighbor_keys(k)
+					for neighbor_key: Vector2i in neighbor_keys:
+						if chunks.has(neighbor_key):
+							var neighbor_chunk: Chunk3D = chunks[neighbor_key]
+							# TODO(Orlanat):  fix add slice, this can not be null
+							if neighbor_chunk.slice != null:
+								for line: CellLine in neighbor_chunk.slice.lines:
+									var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
+									if inter != null:
+										target_point = line.end
+										#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
 
-				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(chunk.grid_pos)
-				for neighbor_key: Vector2i in neighbor_keys:
-					if chunks.has(neighbor_key):
-						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
-						for line: CellLine in neighbor_chunk.lines:
-							var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
-							if inter != null:
-								target_point = line.end
-								#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
+					for line: CellLine in new_lines:
+						var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
+						if inter != null:
+							target_point = line.end
+							#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
 
-				for line: CellLine in new_lines:
-					var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
-					if inter != null:
-						target_point = line.end
-						#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
-
-				var new_line: CellLine = CellLine.new(p_end, target_point)
-				new_lines.append(new_line)
+					var new_line: CellLine = CellLine.new(p_end, target_point)
+					new_lines.append(new_line)
 
 		for line: CellLine in new_lines:
 			var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
 			if target_chunk != null:
-				target_chunk.add_line(line)
+				# TODO(Orlanat):  fix add slice, this can not be null
+				if target_chunk.slice != null:
+					target_chunk.slice.add_line(line)
 				
 
 func calculate_angle(start: Vector2, end: Vector2) -> float:
@@ -146,8 +158,8 @@ func generate_child_rays(start_point: CellPoint, base_direction: float, child_co
 		var dx: float  = cos(new_angle) * length
 		var dy: float = sin(new_angle) * length
 		# Вычисляем координаты конечной точки и округляем до целых чисел
-		var new_x: int = int(round(start_point.x + dx))
-		var new_y: int = int(round(start_point.y + dy))
+		var new_x: int = int(round(start_point.position.x + dx))
+		var new_y: int = int(round(start_point.position.y + dy))
 		var end_point: CellPoint = CellPoint.new(Vector2(new_x, new_y))
 		points.append(end_point)
 	return points
