@@ -1,11 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq7bn36xhgosl"]
+[gd_scene load_steps=2 format=3 uid="uid://cq7bn36xhgosl"]
 
 [ext_resource type="Script" path="res://Scenes/CellStructure/chunk_manager_3d.gd" id="1_dc7j5"]
 
-[sub_resource type="SphereMesh" id="SphereMesh_xrni0"]
-
 [node name="ChunkManager3D" type="Node3D"]
 script = ExtResource("1_dc7j5")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_xrni0")

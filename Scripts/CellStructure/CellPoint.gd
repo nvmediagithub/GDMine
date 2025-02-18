@@ -6,5 +6,5 @@ var position: Vector2
 # Флаг, указывающий, испустила ли эта точка векторы (например, для дальнейшей генерации)
 var has_emitted: bool = false
 
-func _init(pos: Vector2):
+func _init(pos: Vector2) -> void:
 	position = pos

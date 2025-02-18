@@ -19,16 +19,16 @@ func _init(p_size: int, p_need_expand: bool, p_grid_pos: Vector2) -> void:
 	lines = []
 
 # Метод для проверки, принадлежит ли точка чанку (используются только x и y)
-func contains(point) -> bool:
+func contains(point: CellPoint) -> bool:
 	# Ожидается, что у point есть свойство "position", которое является Vector2
 	var pos: Vector2 = point.position
 	# Используем стандартную семантику: левая и верхняя границы включаются, правая и нижняя — нет
 	return pos.x >= grid_pos.x and pos.x < (grid_pos.x + size) and pos.y >= grid_pos.y and pos.y < (grid_pos.y + size)
 
-func add_point(point) -> void:
+func add_point(point: CellPoint) -> void:
 	points.append(point)
 
-func add_line(line) -> void:
+func add_line(line: CellLine) -> void:
 	lines.append(line)
 
 func _to_string() -> String:

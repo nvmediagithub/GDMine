@@ -1,15 +1,15 @@
 extends Node3D
 
-@export var speed: float = 10.0
-@export var mouse_sensitivity: float = 0.1
+@export var speed: float = 5.0
+@export var mouse_sensitivity: float = 0.05
 
 var yaw: float = 0.0  # горизонтальное вращение в градусах
 var pitch: float = 0.0  # вертикальное вращение в градусах
 
-func _ready():
+func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-func _unhandled_input(event: InputEvent):
+func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		yaw -= event.relative.x * mouse_sensitivity
 		pitch -= event.relative.y * mouse_sensitivity
@@ -27,7 +27,7 @@ func _unhandled_input(event: InputEvent):
 				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _process(delta: float) -> void:
-	var input_vector = Vector3.ZERO
+	var input_vector: Vector3 = Vector3.ZERO
 	if Input.is_action_pressed("move_forward"):
 		input_vector.z += 1
 	if Input.is_action_pressed("move_backward"):
@@ -44,12 +44,12 @@ func _process(delta: float) -> void:
 	
 	if input_vector != Vector3.ZERO:
 		# Вычисляем базис, основанный только на горизонтальном повороте (yaw)
-		var yaw_basis = Basis(Vector3.UP, deg_to_rad(yaw))
-		var forward = -yaw_basis.z  # направление "вперёд" по горизонтали
-		var right = yaw_basis.x       # направление "вправо" по горизонтали
+		var yaw_basis: Basis = Basis(Vector3.UP, deg_to_rad(yaw))
+		var forward: Vector3 = -yaw_basis.z  # направление "вперёд" по горизонтали
+		var right: Vector3 = yaw_basis.x       # направление "вправо" по горизонтали
 		
 		# Горизонтальное движение рассчитываем как комбинацию forward и right
-		var movement = (forward * input_vector.z + right * input_vector.x) 
+		var movement: Vector3 = (forward * input_vector.z + right * input_vector.x) 
 		# Добавляем вертикальную составляющую (если нужна свободная высота)
 		movement += Vector3.UP * input_vector.y
 		

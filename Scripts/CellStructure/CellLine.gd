@@ -7,11 +7,11 @@ var end: CellPoint
 # Сколько полигонов (ячейки) содержит эта линия (можно использовать для оптимизации или отладки)
 var polygon_membership: int = 0
 
-func _init(start_point: CellPoint, end_point: CellPoint):
+func _init(start_point: CellPoint, end_point: CellPoint) -> void:
 	start = start_point
 	end = end_point
 	polygon_membership = 0
 
 # Метод для увеличения счётчика принадлежности линии к полигону
-func add_polygon_membership():
+func add_polygon_membership() -> void:
 	polygon_membership += 1
