@@ -8,14 +8,12 @@ var need_expand: bool = true
 var grid_pos: Vector2
 
 # Массивы для хранения точек, линий и полигонов (если потребуется)
-var points: Array[CellPoint] = []
 var lines: Array[CellLine] = []
 
-func _init(p_size: int, p_need_expand: bool, p_grid_pos: Vector2) -> void:
+func _init(p_size: int, p_need_expand: bool) -> void:
 	size = p_size
 	need_expand = p_need_expand
-	grid_pos = p_grid_pos
-	points = []
+
 	lines = []
 
 # Метод для проверки, принадлежит ли точка чанку (используются только x и y)
@@ -25,13 +23,11 @@ func contains(point: CellPoint) -> bool:
 	# Используем стандартную семантику: левая и верхняя границы включаются, правая и нижняя — нет
 	return pos.x >= grid_pos.x and pos.x < (grid_pos.x + size) and pos.y >= grid_pos.y and pos.y < (grid_pos.y + size)
 
-func add_point(point: CellPoint) -> void:
-	points.append(point)
 
 func add_line(line: CellLine) -> void:
 	lines.append(line)
 
 func _to_string() -> String:
-	return "ChunkSlice(size=%d, need_expand=%s, grid_pos=%s, points=%d, lines=%d)" % [
-		size, str(need_expand), str(grid_pos), points.size(), lines.size()
+	return "ChunkSlice(size=%d, need_expand=%s, grid_pos=%s, lines=%d)" % [
+		size, str(need_expand), str(grid_pos), lines.size()
 	]

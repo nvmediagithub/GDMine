@@ -12,3 +12,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
 transform = Transform3D(1, 0, 0, 0, 0.912734, 0.408553, 0, -0.408553, 0.912734, 0, 1.37783, 2.52661)
 
 [node name="ChunkManager3D" parent="." instance=ExtResource("2_4f1d7")]
+origin = Vector2i(0, 0)
+chunk_size = Vector3(2, 2, 2)

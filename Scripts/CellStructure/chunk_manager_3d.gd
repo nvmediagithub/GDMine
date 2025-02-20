@@ -10,12 +10,11 @@ func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2i(0,0))
 	load_chunk(Vector2i(0,0))
 	var points: Array[CellPoint] = generate_child_rays(start_point, 0, 2, 0.5, 1, deg_to_rad(90))
-	var c: Chunk3D = chunks[Vector2i(0,0)]
-	c.slice.add_line(CellLine.new(start_point, points[0]))
-	c.slice.add_line(CellLine.new(start_point, points[1]))
+	var chunk: Chunk3D = chunks[Vector2i(0,0)]
+	chunk.add_line(CellLine.new(start_point, points[0]))
+	chunk.add_line(CellLine.new(start_point, points[1]))
 	expand_structure()
 	
-
 func get_chunk_key_for_point(point: Vector2i) -> Vector2i:
 	var relative_pos: Vector2i = point - origin
 	var i: int = int(floor(relative_pos.x / chunk_size.x))
@@ -34,9 +33,8 @@ func get_neighbor_keys(key: Vector2i) -> Array[Vector2i]:
 func load_chunk(key: Vector2i) -> void:
 	# Если чанк не существует, создаем его как загруженный
 	if not chunks.has(key):
-		var chunk_origin: Vector2i = origin + Vector2i(key.x * chunk_size.x, key.y * chunk_size.y)
 		var new_chunk: Chunk3D = Chunk3D.new()
-		var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true, key)
+		var new_slice: ChunkSlice = ChunkSlice.new(int(chunk_size.x), true)
 		new_chunk.set_chunk(new_slice)
 		# Добавляем новый узел как дочерний к менеджеру
 		add_child(new_chunk)
@@ -47,12 +45,11 @@ func load_chunk(key: Vector2i) -> void:
 	# Создаем соседние чанки, если их еще нет, как незагруженные
 	for nkey: Vector2i in get_neighbor_keys(key):
 		if not chunks.has(nkey):
-			var neighbor_origin: Vector2i = origin + Vector2i(nkey.x * chunk_size.x, nkey.y * chunk_size.y)
 			var neighbor_chunk: Chunk3D = Chunk3D.new()
-			var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, false, nkey)
-			#neighbor_chunk.set_chunk(new_slice)
-			var global_position: Vector2 = nkey * chunk_size.x
-			neighbor_chunk.global_position = Vector3(global_position.x, 0, global_position.y)
+			var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, false)
+			neighbor_chunk.set_chunk(new_slice)
+			var position: Vector2 = nkey * chunk_size.x
+			neighbor_chunk.position = Vector3(position.x, 0, position.y)
 			
 			add_child(neighbor_chunk)
 			chunks[nkey] = neighbor_chunk
@@ -80,14 +77,11 @@ func get_loaded_chunks() -> Array:
 	
 func expand_structure(connection_threshold: float = 300.0) -> void:
 	for chunk: Chunk3D in chunks.values():
-		# TODO(Orlanat):  fix add slice, this can not be null
-		if chunk.slice != null:
-			if not chunk.slice.need_expand:
-				continue
+		if not chunk.need_expand():
+			continue
 		var new_lines: Array[CellLine] = []
-		# TODO(Orlanat):  fix add slice, this can not be null
-		if chunk.slice != null:
-			for chunk_line: CellLine in chunk.slice.lines:
+		if true:
+			for chunk_line: CellLine in chunk.get_lines():
 				var p_start: CellPoint = chunk_line.start
 				var p_end: CellPoint = chunk_line.end
 				if p_end.has_emitted:
@@ -96,7 +90,7 @@ func expand_structure(connection_threshold: float = 300.0) -> void:
 				var base_direction: float = calculate_angle(p_start.position, p_end.position)
 				var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 3, 40.0, 60.0, deg_to_rad(90.0))
 				for target_point: CellPoint in target_points:
-					for line: CellLine in chunk.slice.lines:
+					for line: CellLine in chunk.get_lines():
 						var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
 						if inter != null:
 							target_point = line.end
@@ -106,13 +100,11 @@ func expand_structure(connection_threshold: float = 300.0) -> void:
 					for neighbor_key: Vector2i in neighbor_keys:
 						if chunks.has(neighbor_key):
 							var neighbor_chunk: Chunk3D = chunks[neighbor_key]
-							# TODO(Orlanat):  fix add slice, this can not be null
-							if neighbor_chunk.slice != null:
-								for line: CellLine in neighbor_chunk.slice.lines:
-									var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
-									if inter != null:
-										target_point = line.end
-										#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
+							for line: CellLine in neighbor_chunk.get_lines():
+								var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
+								if inter != null:
+									target_point = line.end
+									#target_point = line.start if (inter - line.start.position).length() < (inter - line.end.position).length() else line.end
 
 					for line: CellLine in new_lines:
 						var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
@@ -126,9 +118,7 @@ func expand_structure(connection_threshold: float = 300.0) -> void:
 		for line: CellLine in new_lines:
 			var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
 			if target_chunk != null:
-				# TODO(Orlanat):  fix add slice, this can not be null
-				if target_chunk.slice != null:
-					target_chunk.slice.add_line(line)
+				target_chunk.add_line(line)
 				
 
 func calculate_angle(start: Vector2, end: Vector2) -> float:

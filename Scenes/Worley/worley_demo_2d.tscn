@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dgfhbjulynwt3"]
-
-[ext_resource type="Script" path="res://Scripts/Worley/worley_demo_2d.gd" id="1_jygci"]
-
-[node name="WorleyDemo2d" type="Node2D"]
-script = ExtResource("1_jygci")
