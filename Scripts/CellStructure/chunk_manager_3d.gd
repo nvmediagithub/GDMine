@@ -46,10 +46,10 @@ func load_chunk(key: Vector2i) -> void:
 	for nkey: Vector2i in get_neighbor_keys(key):
 		if not chunks.has(nkey):
 			var neighbor_chunk: Chunk3D = Chunk3D.new()
-			var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, false)
+			var new_slice: ChunkSlice = ChunkSlice.new(int(chunk_size.x), false)
 			neighbor_chunk.set_chunk(new_slice)
-			var position: Vector2 = nkey * chunk_size.x
-			neighbor_chunk.position = Vector3(position.x, 0, position.y)
+			var local_position: Vector2 = nkey * chunk_size.x
+			neighbor_chunk.position = Vector3(local_position.x, 0, local_position.y)
 			
 			add_child(neighbor_chunk)
 			chunks[nkey] = neighbor_chunk
@@ -75,7 +75,7 @@ func get_loaded_chunks() -> Array:
 			loaded_chunks.append(chunk)
 	return loaded_chunks
 	
-func expand_structure(connection_threshold: float = 300.0) -> void:
+func expand_structure() -> void:
 	for chunk: Chunk3D in chunks.values():
 		if not chunk.need_expand():
 			continue
