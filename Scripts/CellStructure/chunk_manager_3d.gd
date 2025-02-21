@@ -11,29 +11,20 @@ var chunks: Dictionary = {}  # ключ: Vector2i, значение: Chunk3D у�
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(0,0))
 	load_chunk(Vector2i(0,0))
-	var points: Array[CellPoint] = generate_child_rays(start_point, 3.14/2, 2, min_ray_lenght, max_ray_lenght)
+	var points: Array[CellPoint] = generate_child_rays(start_point, 3.14/2, 3, min_ray_lenght, max_ray_lenght)
 	var chunk: Chunk3D = chunks[Vector2i(0,0)]
 	chunk.size = chunk_size
 	chunk.add_line(CellLine.new(start_point, points[0]))
 	chunk.add_line(CellLine.new(start_point, points[1]))
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
-	expand_structure()
+	for i: int in range(20):
+		expand_structure()
 	
 func get_chunk_key_for_point(point: Vector2) -> Vector2i:
 	#print('point ', point)
 	var relative_pos: Vector2i = Vector2i(floor(point.x / chunk_size.x), floor(point.y / chunk_size.y)) - origin
 	#print('relative_pos ', relative_pos)
-	var i: int = int(floor(relative_pos.x / chunk_size.x))
-	var j: int = int(floor(relative_pos.y / chunk_size.y))
+	var i: int = int(floor(relative_pos.x))
+	var j: int = int(floor(relative_pos.y))
 	return Vector2i(i, j)
 
 func get_neighbor_keys(key: Vector2i) -> Array[Vector2i]:
@@ -88,7 +79,8 @@ func get_loaded_chunks() -> Array:
 		if chunk.need_expand:
 			loaded_chunks.append(chunk)
 	return loaded_chunks
-	
+
+
 func expand_structure() -> void:
 	print("expand_structure")
 	var need_expand: bool = false
@@ -103,12 +95,14 @@ func expand_structure() -> void:
 				continue
 			p_end.has_emitted = true
 			var base_direction: float = calculate_angle(p_start.position, p_end.position)
-			var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 2, min_ray_lenght, max_ray_lenght)
+			var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 3, min_ray_lenght, max_ray_lenght)
 			for target_point: CellPoint in target_points:
 				for line: CellLine in chunk.get_lines():
 					var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
 					if inter != null:
-						target_point = line.end
+						#target_point = line.end
+						target_point = inter
+						target_point.has_emitted = true
 				var k: Vector2i = chunks.find_key(chunk) 
 				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(k)
 				for neighbor_key: Vector2i in neighbor_keys:
@@ -117,12 +111,16 @@ func expand_structure() -> void:
 						for line: CellLine in neighbor_chunk.get_lines():
 							var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
 							if inter != null:
-								target_point = line.end
+								#target_point = line.end
+								target_point = inter
+								target_point.has_emitted = true
 
 				for line: CellLine in new_lines:
 					var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
 					if inter != null:
-						target_point = line.end
+						#target_point = line.end
+						target_point = inter
+						target_point.has_emitted = true
 
 				var new_line: CellLine = CellLine.new(p_end, target_point)
 				new_lines.append(new_line)
@@ -132,8 +130,6 @@ func expand_structure() -> void:
 			if target_chunk != null:
 				need_expand = true
 				target_chunk.add_line(line)
-	#if need_expand:
-		#expand_structure()
 
 func calculate_angle(start: Vector2, end: Vector2) -> float:
 	# Вычисление угла в радианах

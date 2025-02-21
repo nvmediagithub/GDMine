@@ -3,14 +3,14 @@ extends RefCounted
 class_name ChunkSlice
 
 # Параметры чанка: координаты верхнего левого угла, размеры, флаг загрузки и позиция в сетке (например, Vector2)
-var size: int
+var size: float
 var need_expand: bool = true
 var grid_pos: Vector2
 
 # Массивы для хранения точек, линий и полигонов (если потребуется)
 var lines: Array[CellLine] = []
 
-func _init(p_size: int, p_need_expand: bool) -> void:
+func _init(p_size: float, p_need_expand: bool) -> void:
 	size = p_size
 	need_expand = p_need_expand
 
