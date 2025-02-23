@@ -4,19 +4,19 @@ class_name ChunkManager3D
 # Параметры сетки чанков
 @export var origin: Vector2i = Vector2i(0,0)
 @export var chunk_size: Vector3 = Vector3(8.0,8.0,8.0)
-@export var min_ray_lenght: float = 1.5
-@export var max_ray_lenght: float = 3.0
+@export var min_ray_lenght: float = 1.0
+@export var max_ray_lenght: float = 2.0
 var chunks: Dictionary = {}  # ключ: Vector2i, значение: Chunk3D узел
 	
 func _ready() -> void:
-	var start_point: CellPoint = CellPoint.new(Vector2(0,0))
+	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
 	load_chunk(Vector2i(0,0))
-	var points: Array[CellPoint] = generate_child_rays(start_point, 3.14/2, 3, min_ray_lenght, max_ray_lenght)
+	var points: Array[CellPoint] = generate_child_rays(start_point, 0, 6, min_ray_lenght, max_ray_lenght)
 	var chunk: Chunk3D = chunks[Vector2i(0,0)]
 	chunk.size = chunk_size
-	chunk.add_line(CellLine.new(start_point, points[0]))
-	chunk.add_line(CellLine.new(start_point, points[1]))
-	for i: int in range(20):
+	for end_point: CellPoint in points:
+		chunk.add_line(CellLine.new(start_point, end_point))
+	for i: int in range(14):
 		expand_structure()
 	
 func get_chunk_key_for_point(point: Vector2) -> Vector2i:
@@ -40,7 +40,7 @@ func load_chunk(key: Vector2i) -> void:
 	# Если чанк не существует, создаем его как загруженный
 	if not chunks.has(key):
 		var new_chunk: Chunk3D = Chunk3D.new(key)
-		var new_slice: ChunkSlice = ChunkSlice.new(int(chunk_size.x), true)
+		var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true)
 		new_chunk.set_chunk(new_slice)
 		new_chunk.size = chunk_size
 		# Добавляем новый узел как дочерний к менеджеру
@@ -95,12 +95,11 @@ func expand_structure() -> void:
 				continue
 			p_end.has_emitted = true
 			var base_direction: float = calculate_angle(p_start.position, p_end.position)
-			var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 3, min_ray_lenght, max_ray_lenght)
+			var target_points: Array[CellPoint] = generate_child_rays(p_end, base_direction, 2, min_ray_lenght, max_ray_lenght, PI / 2)
 			for target_point: CellPoint in target_points:
 				for line: CellLine in chunk.get_lines():
 					var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
 					if inter != null:
-						#target_point = line.end
 						target_point = inter
 						target_point.has_emitted = true
 				var k: Vector2i = chunks.find_key(chunk) 
@@ -109,9 +108,14 @@ func expand_structure() -> void:
 					if chunks.has(neighbor_key):
 						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
 						for line: CellLine in neighbor_chunk.get_lines():
-							var inter: CellPoint = line_intersection(p_end.position, target_point.position, line.start.position, line.end.position)
+							var inter: CellPoint =\
+								line_intersection(
+									p_end.position,
+									target_point.position,
+									line.start.position,
+									line.end.position
+								)
 							if inter != null:
-								#target_point = line.end
 								target_point = inter
 								target_point.has_emitted = true
 
@@ -139,7 +143,7 @@ func calculate_angle(start: Vector2, end: Vector2) -> float:
 
 func generate_child_rays(start_point: CellPoint, base_direction: float, child_count: int = 2,
 						min_length: float = 1, max_length: float = 2,
-						max_deviation: float = deg_to_rad(80)) -> Array[CellPoint]:
+						max_deviation: float = PI) -> Array[CellPoint]:
 	"""
 	Генерирует child_count лучей из start_point.
 	Направление каждого луча основывается на base_direction (в радианах) с отклонением не более max_deviation.
@@ -147,19 +151,22 @@ func generate_child_rays(start_point: CellPoint, base_direction: float, child_co
 	Возвращает список лучей, где каждый луч представлен как список [start_point, end_point],
 	а end_point – объект CellPoint с целочисленными координатами.
 	"""
+	if child_count == 0:
+		return []
 	var points: Array[CellPoint] = []
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	var base_step: float = max_deviation * 2 / child_count
 	for n: int in range(child_count):
 		# Вычисляем случайное отклонение
-		var deviation: float = rng.randf_range(-max_deviation, max_deviation)
+		var deviation: float = rng.randf_range(-max_deviation + base_step * n, -max_deviation + base_step * (n+1))
 		var new_angle: float = base_direction + deviation
 		# Выбираем случайную длину луча
 		var length: float = rng.randf_range(min_length, max_length)
 		var dx: float  = cos(new_angle) * length
 		var dy: float = sin(new_angle) * length
 		# Вычисляем координаты конечной точки и округляем до целых чисел
-		var new_x: int = int(round(start_point.position.x + dx))
-		var new_y: int = int(round(start_point.position.y + dy))
+		var new_x: float = start_point.position.x + dx
+		var new_y: float = start_point.position.y + dy
 		var end_point: CellPoint = CellPoint.new(Vector2(new_x, new_y))
 		points.append(end_point)
 	return points

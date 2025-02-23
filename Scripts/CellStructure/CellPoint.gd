@@ -7,4 +7,5 @@ var position: Vector2
 var has_emitted: bool = false
 
 func _init(pos: Vector2) -> void:
+	print(pos)
 	position = pos
