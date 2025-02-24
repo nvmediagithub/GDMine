@@ -7,7 +7,7 @@ class_name ChunkManager3D
 @export var min_ray_length: float = 1.0
 @export var max_ray_length: float = 1.5
 var chunks: Dictionary = {}
-var limit: float = 0.1 
+var limit: float = 0.6
 	
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
@@ -106,6 +106,8 @@ func expand_structure() -> void:
 					p_start.position, 
 					p_end.position
 				)
+			
+			# Создаем новые точки лучей
 			var target_points: Array[CellPoint] =\
 				CellStructureUtils.generate_child_rays(
 					p_end, 
@@ -162,11 +164,17 @@ func expand_structure() -> void:
 						target_point = inter
 						target_point.has_emitted = true
 				
-				if (p_end.position - target_point.position).length() > limit:
+				# отбрасываем короткие линии
+				if (last_line != null):
+					if (target_point.position - last_line.start.position).length() < limit:
+						last_line.start = target_point
+					elif (target_point.position - last_line.end.position).length() < limit:
+						last_line.end = target_point
+				if (target_point.position - p_end.position).length() < limit:
+					chunk_line.end = target_point
+				else:
 					var new_line: CellLine = CellLine.new(p_end, target_point)
 					new_lines.append(new_line)
-				else:
-					chunk_line.end = target_point
 
 
 		for line: CellLine in new_lines:
