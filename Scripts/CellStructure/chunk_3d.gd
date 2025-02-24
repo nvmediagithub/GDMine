@@ -49,8 +49,8 @@ func update_geometry() -> void:
 		var start_placeholder: MeshInstance3D = MeshInstance3D.new()
 		var end_placeholder: MeshInstance3D = MeshInstance3D.new()
 		var sphere: SphereMesh = SphereMesh.new()
-		sphere.radius = 0.1
-		sphere.height = 0.2
+		sphere.radius = 0.025
+		sphere.height = 0.05
 		start_placeholder.mesh = sphere
 		end_placeholder.mesh = sphere
 		start_placeholder.position = start_pos

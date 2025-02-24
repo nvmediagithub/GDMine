@@ -4,10 +4,10 @@ class_name ChunkManager3D
 # Параметры сетки чанков
 @export var origin: Vector2i = Vector2i(0,0)
 @export var chunk_size: Vector3 = Vector3(8.0,8.0,8.0)
-@export var min_ray_length: float = 1.0
+@export var min_ray_length: float = 1.25
 @export var max_ray_length: float = 1.5
 var chunks: Dictionary = {}
-var limit: float = 0.2
+var limit: float = 0.15
 	
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
@@ -16,7 +16,7 @@ func _ready() -> void:
 		CellStructureUtils.generate_child_rays(
 			start_point, 
 			0, 
-			6, 
+			3, 
 			min_ray_length, 
 			max_ray_length
 		)
@@ -106,7 +106,6 @@ func expand_structure() -> void:
 					p_start.position, 
 					p_end.position
 				)
-			
 			# Создаем новые точки лучей
 			var target_points: Array[CellPoint] =\
 				CellStructureUtils.generate_child_rays(
@@ -120,37 +119,13 @@ func expand_structure() -> void:
 			# Поиск линии и точки пересечения
 			for target_point: CellPoint in target_points:
 				var last_line: CellLine = null
-				for line: CellLine in chunk.get_lines():
-					var inter: CellPoint =\
-						CellStructureUtils.line_intersection(
-							p_end, 
-							target_point, 
-							line.start, 
-							line.end
-						)
-					if inter != null:
-						last_line = line
-						target_point.position = inter.position
-						target_point.has_emitted = true
-
-				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(chunk.grid_pos)
-				for neighbor_key: Vector2i in neighbor_keys:
+				var all_lines: Array[CellLine] = new_lines + chunk.get_lines()
+				for neighbor_key: Vector2i in get_neighbor_keys(chunk.grid_pos):
 					if chunks.has(neighbor_key):
 						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
-						for line: CellLine in neighbor_chunk.get_lines():
-							var inter: CellPoint =\
-								CellStructureUtils.line_intersection(
-									p_end,
-									target_point,
-									line.start,
-									line.end
-								)
-							if inter != null:
-								last_line = line
-								target_point.position = inter.position
-								target_point.has_emitted = true
-
-				for line: CellLine in new_lines:
+						all_lines += neighbor_chunk.get_lines()
+						
+				for line: CellLine in all_lines:
 					var inter: CellPoint =\
 						CellStructureUtils.line_intersection(
 							p_end, 
@@ -176,16 +151,12 @@ func expand_structure() -> void:
 						var new_split: CellLine = CellLine.new(target_point, last_line.end)
 						last_line.end = target_point
 						new_lines.append(new_split)
-				## Если линяя короткая
-				#if (target_point.position - p_end.position).length() < limit:
-					#chunk_line.end = target_point
-				#else:
 				var new_line: CellLine = CellLine.new(p_end, target_point)
 				new_lines.append(new_line)
 
-
 		for line: CellLine in new_lines:
 			var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
+			# TODO Если чанка нет, создать его
 			if target_chunk != null:
 				need_expand = true
 				target_chunk.add_line(line)
