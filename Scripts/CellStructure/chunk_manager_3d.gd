@@ -115,7 +115,9 @@ func expand_structure() -> void:
 					max_ray_length, 
 					PI / 2
 				)
+			# Проверка всех пересечений
 			for target_point: CellPoint in target_points:
+				var last_line: CellLine = null
 				for line: CellLine in chunk.get_lines():
 					var inter: CellPoint =\
 						CellStructureUtils.line_intersection(
@@ -125,18 +127,12 @@ func expand_structure() -> void:
 							line.end
 						)
 					if inter != null:
-						#target_point = inter
-						#target_point.has_emitted = true
-						if (inter.position - target_point.position).length() > limit:
-							target_point = inter
-							target_point.has_emitted = true
-						else:
-							p_end = target_point
-						
-						
-						
-				var k: Vector2i = chunks.find_key(chunk) 
-				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(k)
+						last_line = line
+						target_point = inter
+						target_point.has_emitted = true
+
+				var chunk_key: Vector2i = chunks.find_key(chunk) 
+				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(chunk_key)
 				for neighbor_key: Vector2i in neighbor_keys:
 					if chunks.has(neighbor_key):
 						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
@@ -149,6 +145,7 @@ func expand_structure() -> void:
 									line.end
 								)
 							if inter != null:
+								last_line = line
 								target_point = inter
 								target_point.has_emitted = true
 
@@ -161,16 +158,16 @@ func expand_structure() -> void:
 							line.end
 						)
 					if inter != null:
-						#target_point = line.end
+						last_line = line
 						target_point = inter
 						target_point.has_emitted = true
-				var new_line: CellLine = CellLine.new(p_end, target_point)
-				new_lines.append(new_line)
-				#if (p_end.position - target_point.position).length() > limit:
-					#var new_line: CellLine = CellLine.new(p_end, target_point)
-					#new_lines.append(new_line)
-				#else:
-					#p_end = target_point
+				
+				if (p_end.position - target_point.position).length() > limit:
+					var new_line: CellLine = CellLine.new(p_end, target_point)
+					new_lines.append(new_line)
+				else:
+					chunk_line.end = target_point
+
 
 		for line: CellLine in new_lines:
 			var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
