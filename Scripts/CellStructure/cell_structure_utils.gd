@@ -34,7 +34,7 @@ static func generate_child_rays(
 		var deviation: float =\
 			rng.randf_range(
 					-max_deviation + base_step * n + deviation_limit, 
-					-max_deviation + base_step * (n+1) - deviation_limit
+					-max_deviation + base_step * (n + 1) - deviation_limit
 				)
 		var new_angle: float = base_direction + deviation
 		# Выбираем случайную длину луча
