@@ -7,7 +7,7 @@ class_name ChunkManager3D
 @export var min_ray_length: float = 1.0
 @export var max_ray_length: float = 1.5
 var chunks: Dictionary = {}
-var limit: float = 0.6
+var limit: float = 0.2
 	
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
@@ -117,7 +117,7 @@ func expand_structure() -> void:
 					max_ray_length, 
 					PI / 2
 				)
-			# Проверка всех пересечений
+			# Поиск линии и точки пересечения
 			for target_point: CellPoint in target_points:
 				var last_line: CellLine = null
 				for line: CellLine in chunk.get_lines():
@@ -130,11 +130,10 @@ func expand_structure() -> void:
 						)
 					if inter != null:
 						last_line = line
-						target_point = inter
+						target_point.position = inter.position
 						target_point.has_emitted = true
 
-				var chunk_key: Vector2i = chunks.find_key(chunk) 
-				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(chunk_key)
+				var neighbor_keys: Array[Vector2i] = get_neighbor_keys(chunk.grid_pos)
 				for neighbor_key: Vector2i in neighbor_keys:
 					if chunks.has(neighbor_key):
 						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
@@ -148,7 +147,7 @@ func expand_structure() -> void:
 								)
 							if inter != null:
 								last_line = line
-								target_point = inter
+								target_point.position = inter.position
 								target_point.has_emitted = true
 
 				for line: CellLine in new_lines:
@@ -161,20 +160,28 @@ func expand_structure() -> void:
 						)
 					if inter != null:
 						last_line = line
-						target_point = inter
+						target_point.position = inter.position
 						target_point.has_emitted = true
 				
-				# отбрасываем короткие линии
+				# Если есть пересечение
 				if (last_line != null):
+					# Если точка пересечения близко "подтягиваем позицию"
 					if (target_point.position - last_line.start.position).length() < limit:
-						last_line.start = target_point
+						last_line.start.position = target_point.position
+						target_point = last_line.start
 					elif (target_point.position - last_line.end.position).length() < limit:
+						last_line.end.position = target_point.position
+						target_point = last_line.end
+					else: # разбить линию на 2
+						var new_split: CellLine = CellLine.new(target_point, last_line.end)
 						last_line.end = target_point
-				if (target_point.position - p_end.position).length() < limit:
-					chunk_line.end = target_point
-				else:
-					var new_line: CellLine = CellLine.new(p_end, target_point)
-					new_lines.append(new_line)
+						new_lines.append(new_split)
+				## Если линяя короткая
+				#if (target_point.position - p_end.position).length() < limit:
+					#chunk_line.end = target_point
+				#else:
+				var new_line: CellLine = CellLine.new(p_end, target_point)
+				new_lines.append(new_line)
 
 
 		for line: CellLine in new_lines:
