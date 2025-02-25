@@ -7,6 +7,7 @@ var _slice: ChunkSlice = ChunkSlice.new(1, false)
 var size: Vector3 = Vector3.ONE
 var debug_container: Node3D = Node3D.new()
 var grid_pos: Vector2i = Vector2i.ZERO
+var polygons: Array = []
 
 func _init(p_grid_pos: Vector2i) -> void:
 	grid_pos = p_grid_pos
@@ -27,16 +28,21 @@ func get_lines() -> Array[CellLine]:
 
 func add_line(line: CellLine) -> void:
 	_slice.add_line(line)
-	#update_geometry()
 
 func set_chunk(new_chunk: ChunkSlice) -> void:
 	_slice = new_chunk
-	update_geometry()
 
 func _clear_debug_container() -> void:
 	# Удаляем все дочерние узлы из контейнера.
 	for child: Node in debug_container.get_children():
 		child.queue_free()
+
+func create_polygons() -> void:
+	# TODO требуется рефакторинг и оптимизация
+	for line: CellLine in _slice.lines:
+		polygons.append(_slice.find_polygon(line))
+
+
 
 func update_geometry() -> void:
 	_clear_debug_container()
@@ -67,6 +73,19 @@ func update_geometry() -> void:
 		var line_instance: MeshInstance3D = create_line(start_pos, end_pos, Color(1, 0, 0))
 		debug_container.add_child(line_instance)
 		# Рисуем границы чанка согласно size
+
+	# Для каждого полигона (массив CellLine) формируем набор точек и рисуем многоугольник.
+	for cell_point_array: Array[CellPoint] in polygons:
+		# Например, выбираем случайный цвет для полигона.
+		var poly_color: Color = Color(rng.randf(), rng.randf(), rng.randf())
+		var poly_mesh: MeshInstance3D = create_polygon_mesh(cell_point_array, poly_color)
+		var mat: StandardMaterial3D = StandardMaterial3D.new()
+		mat.albedo_color = poly_color
+		poly_mesh.material_override = mat
+		debug_container.add_child(poly_mesh)
+
+		
+		
 	# Предполагаем, что границы рисуются на плоскости XZ, начиная от локального начала (0, 0, 0)
 	var p0: Vector3 = Vector3(0, 0, 0)
 	var p1: Vector3 = Vector3(size.x, 0, 0)
@@ -98,3 +117,35 @@ func create_line(start_pos: Vector3, end_pos: Vector3, color: Color) -> MeshInst
 	var line_instance: MeshInstance3D = MeshInstance3D.new()
 	line_instance.mesh = mesh
 	return line_instance
+
+func create_polygon_from_cell_lines(cell_lines: Array) -> Array:
+	# Предполагаем, что линии уже отсортированы таким образом,
+	# что конец одной линии совпадает с началом следующей.
+	var points: Array = []
+	if cell_lines.size() == 0:
+		return points
+	# Начинаем с начала первой линии.
+	points.append(Vector2(cell_lines[0].start.position.x, cell_lines[0].start.position.y))
+	# Для каждой линии добавляем конечную точку.
+	for line: CellLine in cell_lines:
+		points.append(Vector2(line.end.position.x, line.end.position.y))
+	# Если многоугольник не замкнут, закрываем его.
+	if points[0] != points[points.size() - 1]:
+		points.append(points[0])
+	return points
+
+func create_polygon_mesh(points: Array[CellPoint], color: Color) -> MeshInstance3D:
+	# Используем Geometry2D.triangulate_polygon для получения треугольников.
+	var triangles: Array = Geometry2D.triangulate_polygon(points)
+	var st: SurfaceTool = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_color(color)
+	# Проходим по индексам с шагом 3.
+	for i: int in range(0, triangles.size(), 3):
+		st.add_vertex(Vector3(points[triangles[i]].position.x, -0.05, points[triangles[i]].position.y))
+		st.add_vertex(Vector3(points[triangles[i + 1]].position.x, -0.05, points[triangles[i + 1]].position.y))
+		st.add_vertex(Vector3(points[triangles[i + 2]].position.x, -0.05, points[triangles[i + 2]].position.y))
+	var mesh: Mesh = st.commit()
+	var mesh_instance: MeshInstance3D = MeshInstance3D.new()
+	mesh_instance.mesh = mesh
+	return mesh_instance

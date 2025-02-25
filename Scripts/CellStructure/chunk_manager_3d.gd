@@ -25,13 +25,16 @@ func _ready() -> void:
 			max_ray_length
 		)
 	var chunk: Chunk3D = chunks[Vector2i(0,0)]
-	chunk.size = chunk_size
 	for end_point: CellPoint in points:
 		chunk.add_line(CellLine.new(start_point, end_point))
 	for i: int in range(14):
 		expand_structure()
+	chunk.create_polygons()
+	chunk.update_geometry()
 	
-func _process(delta: float) -> void:
+	
+func _process(_delta: float) -> void:
+	
 	# При каждом кадре проверяем, изменилось ли положение игрока
 	update_chunk_loading()
 	expand_structure()
@@ -54,8 +57,8 @@ func load_chunk(key: Vector2i) -> void:
 	if not chunks.has(key):
 		var new_chunk: Chunk3D = Chunk3D.new(key)
 		var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true)
-		new_chunk.set_chunk(new_slice)
 		new_chunk.size = chunk_size
+		new_chunk.set_chunk(new_slice)
 		# Добавляем новый узел как дочерний к менеджеру
 		add_child(new_chunk)
 		chunks[key] = new_chunk
@@ -164,4 +167,5 @@ func update_chunk_loading() -> void:
 	for key: Vector2i in keys_to_load:
 		load_chunk(key)
 		chunks[key].expand()
-	chunks[center_key].expand()
+	if center_key in chunks.keys():
+		chunks[center_key].expand()
