@@ -24,7 +24,8 @@ func _to_string() -> String:
 	return "ChunkSlice(size=%d, need_expand=%s, lines=%d)" % [
 		size, str(need_expand), lines.size()
 	]
-		
+
+
 func find_polygon(line: CellLine) -> Array[CellPoint]:
 	"""
 	Ищет самый короткий путь от точки line.start до точки line.end 
@@ -32,8 +33,8 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 	Возвращает Array[CellPoint] – последовательность вершин, образующих путь.
 	Если путь не найден, возвращает пустой массив.
 	"""
-	if line.polygon_membership > 1:
-		return []
+	#if line.polygon_membership > 1:
+		#return []
 
 	var start_point: CellPoint = line.start
 	var end_point: CellPoint = line.end
@@ -43,57 +44,34 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 	var visited: Dictionary = {}        # key: CellPoint, value: bool
 	# Для каждой вершины сохраняем ту линию, по которой к ней пришли
 	var prev: Dictionary = {}           # key: CellPoint, value: CellLine
-	var prev_1: Dictionary
-	var prev_2: Dictionary
-	
 	queue.append(start_point)
 	visited[start_point] = true
 	prev[start_point] = null
 	
-	var p_count: int = 0
+	var last_lines: Array[CellLine] = []
+	
+	
 	# Поиск в ширину (BFS)
 	while queue.size() > 0:
 		var current_point: CellPoint = queue.pop_front()
-		#if current_point == end_point:
-			#break
+		if current_point == end_point:
+			break
 		# Перебираем все линии графа (self.lines – массив CellLine)
 		for l: CellLine in lines:
 			# Пропускаем ту же самую линию и линии, уже задействованные в полигонах
 			if l.start == line.start and l.end == line.end:
 				continue
-			if l.polygon_membership > 1:
-				continue
+			#if l.polygon_membership > 1:
+				#continue
 			# Граф неориентированный: рассматриваем обе вершины линии как соседей
 			if current_point == l.start and not visited.has(l.end):
 				visited[l.end] = true
-				if l.end == end_point:
-					p_count += 1
-					if p_count == 1:
-						prev_1 = prev.duplicate()
-						prev_1[l.end] = l
-					elif p_count == 2:
-						prev_2 = prev.duplicate()
-						prev_2[l.end] = l
-						break
-				else:
-					prev[l.end] = l
-					queue.append(l.end)
+				prev[l.end] = l
+				queue.append(l.end)
 			elif current_point == l.end and not visited.has(l.start):
 				visited[l.start] = true
-				if l.start == end_point:
-					p_count += 1
-					if p_count == 1:
-						prev_1 = prev.duplicate()
-						prev_1[l.start] = l
-					elif p_count == 2:
-						prev_2 = prev.duplicate()
-						prev_2[l.end] = l
-						break
-				else:
-					prev[l.start] = l
-					queue.append(l.start)
-				#prev[l.start] = l
-				#queue.append(l.start)
+				prev[l.start] = l
+				queue.append(l.start)
 	
 	# Если целевая вершина не достигнута, возвращаем пустой массив
 	if not visited.has(end_point):
@@ -104,7 +82,7 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 	var cur: CellPoint = end_point
 	path_points.append(cur)
 	while cur != start_point:
-		var edge: CellLine = prev_1[cur]
+		var edge: CellLine = prev[cur]
 		if edge == null:
 			break
 		# Отмечаем все использованные линии как принадлежащие полигону

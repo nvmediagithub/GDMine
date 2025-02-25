@@ -83,7 +83,7 @@ func get_chunk_for_point(point: Vector2) -> Chunk3D:
 	return null
 
 func expand_structure() -> void:
-	print("expand_structure")
+	#print("expand_structure")
 	var need_expand: bool = false
 	for chunk: Chunk3D in chunks.values():
 		if not chunk.need_expand():
