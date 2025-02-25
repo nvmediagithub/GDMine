@@ -8,7 +8,7 @@ class_name ChunkManager3D
 @export var max_ray_length: float = 2.0
 # Допустим, у нас есть ссылка на игрока (или камеру)
 @export var player: Node3D
-@export var view_distance: int = 3   # Зона видимости в чанках
+@export var view_distance: int = 1   # Зона видимости в чанках
 
 var chunks: Dictionary = {}
 var limit: float = 0.15
@@ -30,12 +30,12 @@ func _ready() -> void:
 		chunk.add_line(CellLine.new(start_point, end_point))
 	for i: int in range(14):
 		expand_structure()
-
+	
 func _process(delta: float) -> void:
 	# При каждом кадре проверяем, изменилось ли положение игрока
 	update_chunk_loading()
 	expand_structure()
-	
+
 func get_chunk_key_for_point(point: Vector2) -> Vector2i:
 	return Vector2i(
 		floor((point.x - origin.x) / chunk_size.x), 
@@ -163,4 +163,5 @@ func update_chunk_loading() -> void:
 	# Загружаем нужные чанки
 	for key: Vector2i in keys_to_load:
 		load_chunk(key)
+		chunks[key].expand()
 	chunks[center_key].expand()
