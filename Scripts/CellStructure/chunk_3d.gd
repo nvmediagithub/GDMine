@@ -19,6 +19,9 @@ func _ready() -> void:
 func need_expand() -> bool:
 	return _slice.need_expand
 
+func expand() -> void:
+	_slice.need_expand = true
+
 func get_lines() -> Array[CellLine]:
 	return _slice.lines
 
