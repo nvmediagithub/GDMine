@@ -27,7 +27,7 @@ func get_lines() -> Array[CellLine]:
 
 func add_line(line: CellLine) -> void:
 	_slice.add_line(line)
-	update_geometry()
+	#update_geometry()
 
 func set_chunk(new_chunk: ChunkSlice) -> void:
 	_slice = new_chunk
