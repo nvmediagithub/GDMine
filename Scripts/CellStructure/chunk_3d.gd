@@ -92,7 +92,7 @@ func update_geometry() -> void:
 		# Рисуем границы чанка согласно size
 
 	# Для каждого полигона (массив CellLine) формируем набор точек и рисуем многоугольник.
-	for cell_point_arr: Array in polygons:
+	for cell_point_arr: Array[CellPoint] in polygons:
 		# Например, выбираем случайный цвет для полигона.
 		var poly_color: Color = Color(rng.randf(), rng.randf(), rng.randf())
 		var poly_mesh: MeshInstance3D = create_polygon_mesh(cell_point_arr, poly_color)
@@ -134,22 +134,6 @@ func create_line(start_pos: Vector3, end_pos: Vector3, color: Color) -> MeshInst
 	var line_instance: MeshInstance3D = MeshInstance3D.new()
 	line_instance.mesh = mesh
 	return line_instance
-
-func create_polygon_from_cell_lines(cell_lines: Array) -> Array:
-	# Предполагаем, что линии уже отсортированы таким образом,
-	# что конец одной линии совпадает с началом следующей.
-	var points: Array = []
-	if cell_lines.size() == 0:
-		return points
-	# Начинаем с начала первой линии.
-	points.append(Vector2(cell_lines[0].start.position.x, cell_lines[0].start.position.y))
-	# Для каждой линии добавляем конечную точку.
-	for line: CellLine in cell_lines:
-		points.append(Vector2(line.end.position.x, line.end.position.y))
-	# Если многоугольник не замкнут, закрываем его.
-	if points[0] != points[points.size() - 1]:
-		points.append(points[0])
-	return points
 
 func create_polygon_mesh(points: Array, color: Color) -> MeshInstance3D:
 	# Используем Geometry2D.triangulate_polygon для получения треугольников.
