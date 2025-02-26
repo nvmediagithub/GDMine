@@ -71,13 +71,28 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 			# Вычисляем подписанный угол от current_direction до candidate_vector.
 			# Функция signed_angle_to возвращает угол в радианах: положительный — поворот против часовой стрелки, отрицательный — по часовой.
 			var angle: float = current_direction.angle_to(candidate_vector)
-			print(angle)
+
 			# Выбираем кандидата с максимальным углом.
 			# Если поворотов против часовой нет (все отрицательные), будет выбран тот, у которого отклонение по часовой минимально.
 			if angle < best_angle:
 				best_angle = angle
 				best_line = candidate_line
 				best_vector = candidate_vector
+				#print(angle)
+		# Многоугольник оказался вогнутый, добавляем принудительно грань и формируем полигон 
+		# TODO Подумать на сколько это хорошее решение
+		if best_angle >= 0:
+			
+			var new_line: CellLine = CellLine.new(current_point, end_point)
+			if line.start == current_point and line.end == end_point:
+				return []
+			self.lines.append(new_line)
+			best_line = new_line
+			best_vector = end_point.position - current_point.position
+			print(best_angle)
+			best_angle = current_direction.angle_to(best_vector)
+			print(best_angle)
+			
 		# Если ни одного кандидата не выбрано, завершаем поиск
 		if best_line == null:
 			return []
