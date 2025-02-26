@@ -39,8 +39,25 @@ func _clear_debug_container() -> void:
 
 func create_polygons() -> void:
 	# TODO требуется рефакторинг и оптимизация
+	# TODO сейчас присутствуют дубли, требуется не генерировать дубли
 	for line: CellLine in _slice.lines:
-		polygons.append(_slice.find_polygon(line))
+		var poly_arr: Array = _slice.find_polygon(line)
+		var is_found: bool = false
+		#for i: int in range(polygons.size()):
+			#var a: Array = poly_dic['points']
+			#is_found = a.all(func(el: CellPoint) -> bool: return el in polygons[i])
+			#if is_found: break
+		#if not is_found:
+			#polygons.append(poly_dic['points'])
+			#for l: CellLine in poly_dic['lines']:
+				#l.add_polygon_membership()
+		# Поиск дублей
+		for i: int in range(polygons.size()):
+			is_found = poly_arr.all(func(el: CellPoint) -> bool: return el in polygons[i])
+			if is_found: break
+		if not is_found:
+			polygons.append(poly_arr)
+	
 
 
 
@@ -75,10 +92,10 @@ func update_geometry() -> void:
 		# Рисуем границы чанка согласно size
 
 	# Для каждого полигона (массив CellLine) формируем набор точек и рисуем многоугольник.
-	for cell_point_array: Array[CellPoint] in polygons:
+	for cell_point_arr: Array in polygons:
 		# Например, выбираем случайный цвет для полигона.
 		var poly_color: Color = Color(rng.randf(), rng.randf(), rng.randf())
-		var poly_mesh: MeshInstance3D = create_polygon_mesh(cell_point_array, poly_color)
+		var poly_mesh: MeshInstance3D = create_polygon_mesh(cell_point_arr, poly_color)
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = poly_color
 		poly_mesh.material_override = mat
@@ -134,7 +151,7 @@ func create_polygon_from_cell_lines(cell_lines: Array) -> Array:
 		points.append(points[0])
 	return points
 
-func create_polygon_mesh(points: Array[CellPoint], color: Color) -> MeshInstance3D:
+func create_polygon_mesh(points: Array, color: Color) -> MeshInstance3D:
 	# Используем Geometry2D.triangulate_polygon для получения треугольников.
 	var triangles: Array = Geometry2D.triangulate_polygon(points)
 	var st: SurfaceTool = SurfaceTool.new()

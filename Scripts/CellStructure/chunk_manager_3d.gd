@@ -153,7 +153,14 @@ func expand_structure() -> void:
 			# TODO Если чанка нет, создать его
 			if target_chunk != null:
 				need_expand = true
-				target_chunk.add_line(line)
+				# Требуется отимизация, появление дублей недопустимо
+				# Проверить дубли
+				var line_is_found: bool = false
+				for l: CellLine in target_chunk.get_lines():
+					if line.start == l.start and line.end == l.end:
+						line_is_found = true
+				if not line_is_found:
+					target_chunk.add_line(line)
 
 func update_chunk_loading() -> void:
 	# Получаем позицию игрока в 2D (используем X и Z)

@@ -25,84 +25,77 @@ func _to_string() -> String:
 		size, str(need_expand), lines.size()
 	]
 
-
 func find_polygon(line: CellLine) -> Array[CellPoint]:
-	"""
-	Ищет самый короткий путь от точки line.start до точки line.end 
-	по линиям, хранящимся в self.lines.
-	Возвращает Array[CellPoint] – последовательность вершин, образующих путь.
-	Если путь не найден, возвращает пустой массив.
-	"""
-	#if line.polygon_membership > 1:
-		#return []
-
+	# Массив для хранения последовательности вершин полигона
+	var polygon_points: Array[CellPoint] = []
+	
+	# Определяем стартовую и целевую точки
 	var start_point: CellPoint = line.start
 	var end_point: CellPoint = line.end
+	polygon_points.append(start_point)
 	
-	# Очередь для BFS и словарь посещённых вершин
-	var queue: Array = []
-	var visited: Dictionary = {}        # key: CellPoint, value: bool
-	# Для каждой вершины сохраняем ту линию, по которой к ней пришли
-	var prev: Dictionary = {}           # key: CellPoint, value: CellLine
-	queue.append(start_point)
-	visited[start_point] = true
-	prev[start_point] = null
+	# Задаём начальное направление: от end_point к start_point
+	var current_direction: Vector2 = start_point.position - end_point.position
+	var current_point: CellPoint = start_point
+	var visited_lines: Array[CellLine] = []
+	visited_lines.append(line)
 	
-	var last_lines: Array[CellLine] = []
+	# Ограничиваем число итераций, чтобы избежать бесконечного цикла
+	var max_iterations: int = self.lines.size() * 2
 	
+	while current_point != end_point and max_iterations > 0:
+		max_iterations -= 1
+		# Собираем все линии, исходящие из текущей точки
+		var candidates: Array = []
+		for candidate_line: CellLine in self.lines:
+			if candidate_line.start == current_point or candidate_line.end == current_point:
+				# Пропускаем ту же самую линию и линии, уже задействованные в полигонах
+				if not candidate_line in visited_lines:
+					visited_lines.append(candidate_line)
+					candidates.append(candidate_line)
+		
+		# Если из текущей точки нет ни одной линии, значит тупик
+		if candidates.is_empty():
+			return []
+		
+		# Выбираем лучшую линию по критерию угла (наибольший поворот против часовой стрелки)
+		var best_line: CellLine = null
+		var best_angle: float = INF
+		var best_vector: Vector2 = Vector2()
+		
+		for candidate_line: CellLine in candidates:
+			# Определяем соседнюю точку на линии candidate_line
+			var neighbor: CellPoint = candidate_line.end if candidate_line.start == current_point else candidate_line.start
+			# Вектор от текущей точки к соседней
+			var candidate_vector: Vector2 = neighbor.position - current_point.position
+			# Вычисляем подписанный угол от current_direction до candidate_vector.
+			# Функция signed_angle_to возвращает угол в радианах: положительный — поворот против часовой стрелки, отрицательный — по часовой.
+			var angle: float = current_direction.angle_to(candidate_vector)
+			print(angle)
+			# Выбираем кандидата с максимальным углом.
+			# Если поворотов против часовой нет (все отрицательные), будет выбран тот, у которого отклонение по часовой минимально.
+			if angle < best_angle:
+				best_angle = angle
+				best_line = candidate_line
+				best_vector = candidate_vector
+		# Если ни одного кандидата не выбрано, завершаем поиск
+		if best_line == null:
+			return []
+		
+		# Обновляем текущую точку: переходим по выбранной линии к соседней точке
+		var next_point: CellPoint =  best_line.end if (best_line.start == current_point) else best_line.start
+		
+		# Обновляем направление движения
+		current_direction = best_vector
+		current_point = next_point
+		polygon_points.append(current_point)
+		
+		# Если цикл слишком длинный, возможно мы зашли в тупик – выходим с пустым результатом
+		if polygon_points.size() > self.lines.size():
+			return []
 	
-	# Поиск в ширину (BFS)
-	while queue.size() > 0:
-		var current_point: CellPoint = queue.pop_front()
-		if current_point == end_point:
-			break
-		# Перебираем все линии графа (self.lines – массив CellLine)
-		for l: CellLine in lines:
-			# Пропускаем ту же самую линию и линии, уже задействованные в полигонах
-			if l.start == line.start and l.end == line.end:
-				continue
-			#if l.polygon_membership > 1:
-				#continue
-			# Граф неориентированный: рассматриваем обе вершины линии как соседей
-			if current_point == l.start and not visited.has(l.end):
-				visited[l.end] = true
-				prev[l.end] = l
-				queue.append(l.end)
-			elif current_point == l.end and not visited.has(l.start):
-				visited[l.start] = true
-				prev[l.start] = l
-				queue.append(l.start)
-	
-	# Если целевая вершина не достигнута, возвращаем пустой массив
-	if not visited.has(end_point):
+	# Если целевая точка не достигнута, возвращаем пустой массив
+	if current_point != end_point:
 		return []
 	
-	# Восстанавливаем путь как последовательность вершин (CellPoint)
-	var path_points: Array[CellPoint] = []
-	var cur: CellPoint = end_point
-	path_points.append(cur)
-	while cur != start_point:
-		var edge: CellLine = prev[cur]
-		if edge == null:
-			break
-		# Отмечаем все использованные линии как принадлежащие полигону
-		edge.add_polygon_membership()
-		# Определяем предыдущую вершину по линии
-		if edge.end == cur:
-			cur = edge.start
-		else:
-			cur = edge.end
-		path_points.append(cur)
-		
-	
-  # Проверка порядка вершин с помощью вычисления площади (алгоритм Гаусса)
-	var area: float = 0.0
-	for i:int in range(path_points.size()):
-		var p1: Vector2 = path_points[i].position
-		var p2: Vector2 = path_points[(i+1) % path_points.size()].position
-		area += p1.x * p2.y - p2.x * p1.y
-	# Если площадь отрицательная, вершины идут по часовой стрелке, инвертируем порядок для получения контр-часового порядка
-	if area > 0:
-		path_points.reverse()
-	
-	return path_points
+	return polygon_points
