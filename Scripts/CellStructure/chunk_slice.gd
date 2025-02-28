@@ -41,7 +41,7 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 	visited_lines.append(line)
 	
 	# Ограничиваем число итераций, чтобы избежать бесконечного цикла
-	var max_iterations: int = self.lines.size() * 2
+	var max_iterations: int = self.lines.size() * 3
 	
 	while current_point != end_point and max_iterations > 0:
 		max_iterations -= 1

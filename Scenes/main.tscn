@@ -9,7 +9,7 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
 
 [node name="CameraRig" parent="." instance=ExtResource("2_uttyp")]
-transform = Transform3D(1, 0, 0, 0, 0.912734, 0.408553, 0, -0.408553, 0.912734, 0, 1.37783, 2.52661)
+transform = Transform3D(1, 0, 0, 0, 0.785511, 0.618847, 0, -0.618847, 0.785511, 4.58725, 4.9395, 9.66765)
 speed = 1.5
 mouse_sensitivity = 0.03
 
