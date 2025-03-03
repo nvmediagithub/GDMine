@@ -43,14 +43,6 @@ func create_polygons() -> void:
 	for line: CellLine in _slice.lines:
 		var poly_arr: Array = _slice.find_polygon(line)
 		var is_found: bool = false
-		#for i: int in range(polygons.size()):
-			#var a: Array = poly_dic['points']
-			#is_found = a.all(func(el: CellPoint) -> bool: return el in polygons[i])
-			#if is_found: break
-		#if not is_found:
-			#polygons.append(poly_dic['points'])
-			#for l: CellLine in poly_dic['lines']:
-				#l.add_polygon_membership()
 		# Поиск дублей
 		for i: int in range(polygons.size()):
 			is_found = poly_arr.all(func(el: CellPoint) -> bool: return el in polygons[i])
@@ -61,7 +53,7 @@ func create_polygons() -> void:
 
 
 
-func update_geometry() -> void:
+func update_debug_geometry() -> void:
 	_clear_debug_container()
 	# Проходим по всем линиям, сохраненным в slice
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -87,7 +79,7 @@ func update_geometry() -> void:
 		debug_container.add_child(end_placeholder)
 		
 		# Создаем линию между start_pos и end_pos с помощью SurfaceTool.
-		var line_instance: MeshInstance3D = create_line(start_pos, end_pos, Color(1, 0, 0))
+		var line_instance: MeshInstance3D = MeshGenUtils.create_line(start_pos, end_pos, Color(1, 0, 0))
 		debug_container.add_child(line_instance)
 		# Рисуем границы чанка согласно size
 
@@ -95,7 +87,7 @@ func update_geometry() -> void:
 	for cell_point_arr: Array[CellPoint] in polygons:
 		# Например, выбираем случайный цвет для полигона.
 		var poly_color: Color = Color(rng.randf(), rng.randf(), rng.randf())
-		var poly_mesh: MeshInstance3D = create_polygon_mesh(cell_point_arr, poly_color)
+		var poly_mesh: MeshInstance3D = MeshGenUtils.create_polygon_mesh(cell_point_arr, poly_color)
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = poly_color
 		poly_mesh.material_override = mat
@@ -118,35 +110,6 @@ func update_geometry() -> void:
 	]
 	
 	for segment: Array in boundaries:
-		var boundary_line: MeshInstance3D = create_line(segment[0], segment[1], Color(0, 1, 0))
+		var boundary_line: MeshInstance3D = MeshGenUtils.create_line(segment[0], segment[1], Color(0, 1, 0))
 		debug_container.add_child(boundary_line)
 		
-func create_line(start_pos: Vector3, end_pos: Vector3, color: Color) -> MeshInstance3D:
-	var st: SurfaceTool = SurfaceTool.new()
-	# Используем примитив для линий.
-	st.begin(Mesh.PRIMITIVE_LINES)
-	# Задаем цвет для обеих вершин.
-	st.set_color(color)
-	st.add_vertex(start_pos)
-	st.add_vertex(end_pos)
-	# Завершаем создание меша.
-	var mesh: Mesh = st.commit()
-	var line_instance: MeshInstance3D = MeshInstance3D.new()
-	line_instance.mesh = mesh
-	return line_instance
-
-func create_polygon_mesh(points: Array, color: Color) -> MeshInstance3D:
-	# Используем Geometry2D.triangulate_polygon для получения треугольников.
-	var triangles: Array = Geometry2D.triangulate_polygon(points)
-	var st: SurfaceTool = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	st.set_color(color)
-	# Проходим по индексам с шагом 3.
-	for i: int in range(0, triangles.size(), 3):
-		st.add_vertex(Vector3(points[triangles[i]].position.x, -0.05, points[triangles[i]].position.y))
-		st.add_vertex(Vector3(points[triangles[i + 1]].position.x, -0.05, points[triangles[i + 1]].position.y))
-		st.add_vertex(Vector3(points[triangles[i + 2]].position.x, -0.05, points[triangles[i + 2]].position.y))
-	var mesh: Mesh = st.commit()
-	var mesh_instance: MeshInstance3D = MeshInstance3D.new()
-	mesh_instance.mesh = mesh
-	return mesh_instance

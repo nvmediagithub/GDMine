@@ -25,6 +25,7 @@ func _to_string() -> String:
 		size, str(need_expand), lines.size()
 	]
 
+	
 func find_polygon(line: CellLine) -> Array[CellPoint]:
 	# Массив для хранения последовательности вершин полигона
 	var polygon_points: Array[CellPoint] = []
@@ -78,20 +79,15 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 				best_angle = angle
 				best_line = candidate_line
 				best_vector = candidate_vector
-				#print(angle)
-		# Многоугольник оказался вогнутый, добавляем принудительно грань и формируем полигон 
+
+		# Многоугольник оказался вогнутый, добавляем принудительно грань, но полигон не формируем 
 		# TODO Подумать на сколько это хорошее решение
-		if best_angle >= 0:
-			
+		if best_angle >= 0:			
 			var new_line: CellLine = CellLine.new(current_point, end_point)
 			if line.start == current_point and line.end == end_point:
 				return []
 			self.lines.append(new_line)
-			best_line = new_line
-			best_vector = end_point.position - current_point.position
-			print(best_angle)
-			best_angle = current_direction.angle_to(best_vector)
-			print(best_angle)
+			return []
 			
 		# Если ни одного кандидата не выбрано, завершаем поиск
 		if best_line == null:

@@ -15,7 +15,13 @@ var limit: float = 0.15
 
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
-	load_chunk(Vector2i(0,0))
+	var new_chunk: Chunk3D = Chunk3D.new(Vector2i(0,0))
+	var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true)
+	new_chunk.size = chunk_size
+	new_chunk.set_chunk(new_slice)
+	# Добавляем новый узел как дочерний к менеджеру
+	add_child(new_chunk)
+	chunks[Vector2i(0,0)] = new_chunk
 	var points: Array[CellPoint] =\
 		CellStructureUtils.generate_child_rays(
 			start_point, 
@@ -24,20 +30,19 @@ func _ready() -> void:
 			min_ray_length, 
 			max_ray_length
 		)
-	var chunk: Chunk3D = chunks[Vector2i(0,0)]
 	for end_point: CellPoint in points:
-		chunk.add_line(CellLine.new(start_point, end_point))
-	for i: int in range(14):
-		expand_structure()
-	chunk.create_polygons()
-	chunk.update_geometry()
+		new_chunk.add_line(CellLine.new(start_point, end_point))
+	load_chunk(Vector2i(0,0))
+	# TODO надо адекватно ограничить расширение 
+	for i: int in range(8):
+		expand_structure(Vector2i(0,0))
+	new_chunk.create_polygons()
+	new_chunk.update_debug_geometry()
 	
-	
+
 func _process(_delta: float) -> void:
-	
 	# При каждом кадре проверяем, изменилось ли положение игрока
 	update_chunk_loading()
-	expand_structure()
 
 func get_chunk_key_for_point(point: Vector2) -> Vector2i:
 	return Vector2i(
@@ -82,85 +87,86 @@ func get_chunk_for_point(point: Vector2) -> Chunk3D:
 		return chunks[key]
 	return null
 
-func expand_structure() -> void:
-	#print("expand_structure")
+func expand_structure(key: Vector2i) -> bool:
 	var need_expand: bool = false
-	for chunk: Chunk3D in chunks.values():
-		if not chunk.need_expand():
+	var chunk: Chunk3D = chunks[key]
+	#if not chunk.need_expand():
+		#continue
+	var new_lines: Array[CellLine] = []
+	for chunk_line: CellLine in chunk.get_lines():
+		var p_start: CellPoint = chunk_line.start
+		var p_end: CellPoint = chunk_line.end
+		if p_end.has_emitted:
 			continue
-		var new_lines: Array[CellLine] = []
-		for chunk_line: CellLine in chunk.get_lines():
-			var p_start: CellPoint = chunk_line.start
-			var p_end: CellPoint = chunk_line.end
-			if p_end.has_emitted:
-				continue
-			p_end.has_emitted = true
-			var base_direction: float =\
-				CellStructureUtils.calculate_angle(
-					p_start.position, 
-					p_end.position
-				)
-			# Создаем новые точки лучей
-			var target_points: Array[CellPoint] =\
-				CellStructureUtils.generate_child_rays(
-					p_end, 
-					base_direction, 
-					2, 
-					min_ray_length, 
-					max_ray_length, 
-					PI / 2
-				)
-			# Поиск линии и точки пересечения
-			for target_point: CellPoint in target_points:
-				var last_line: CellLine = null
-				var all_lines: Array[CellLine] = new_lines + chunk.get_lines()
-				for neighbor_key: Vector2i in get_neighbor_keys(chunk.grid_pos, 1):
-					if chunks.has(neighbor_key):
-						var neighbor_chunk: Chunk3D = chunks[neighbor_key]
-						all_lines += neighbor_chunk.get_lines()
-						
-				for line: CellLine in all_lines:
-					var inter: CellPoint =\
-						CellStructureUtils.line_intersection(
-							p_end, 
-							target_point, 
-							line.start, 
-							line.end
-						)
-					if inter != null:
-						last_line = line
-						target_point.position = inter.position
-						target_point.has_emitted = true
-				
-				# Если есть пересечение
-				if (last_line != null):
-					# Если точка пересечения близко "подтягиваем позицию"
-					if (target_point.position - last_line.start.position).length() < limit:
-						last_line.start.position = target_point.position
-						target_point = last_line.start
-					elif (target_point.position - last_line.end.position).length() < limit:
-						last_line.end.position = target_point.position
-						target_point = last_line.end
-					else: # разбить линию на 2
-						var new_split: CellLine = CellLine.new(target_point, last_line.end)
-						last_line.end = target_point
-						new_lines.append(new_split)
-				var new_line: CellLine = CellLine.new(p_end, target_point)
-				new_lines.append(new_line)
+		p_end.has_emitted = true
+		var base_direction: float =\
+			CellStructureUtils.calculate_angle(
+				p_start.position, 
+				p_end.position
+			)
+		# Создаем новые точки лучей
+		var target_points: Array[CellPoint] =\
+			CellStructureUtils.generate_child_rays(
+				p_end, 
+				base_direction, 
+				2, 
+				min_ray_length, 
+				max_ray_length, 
+				PI / 2
+			)
+		# Поиск линии и точки пересечения
+		for target_point: CellPoint in target_points:
+			var last_line: CellLine = null
+			var all_lines: Array[CellLine] = new_lines + chunk.get_lines()
+			for neighbor_key: Vector2i in get_neighbor_keys(chunk.grid_pos, 1):
+				if chunks.has(neighbor_key):
+					var neighbor_chunk: Chunk3D = chunks[neighbor_key]
+					all_lines += neighbor_chunk.get_lines()
+					
+			for line: CellLine in all_lines:
+				var inter: CellPoint =\
+					CellStructureUtils.line_intersection(
+						p_end, 
+						target_point, 
+						line.start, 
+						line.end
+					)
+				if inter != null:
+					last_line = line
+					target_point.position = inter.position
+					target_point.has_emitted = true
+			
+			# Если есть пересечение
+			if (last_line != null):
+				# Если точка пересечения близко "подтягиваем позицию"
+				if (target_point.position - last_line.start.position).length() < limit:
+					last_line.start.position = target_point.position
+					target_point = last_line.start
+				elif (target_point.position - last_line.end.position).length() < limit:
+					last_line.end.position = target_point.position
+					target_point = last_line.end
+				else: # разбить линию на 2
+					var new_split: CellLine = CellLine.new(target_point, last_line.end)
+					last_line.end = target_point
+					new_lines.append(new_split)
+			var new_line: CellLine = CellLine.new(p_end, target_point)
+			new_lines.append(new_line)
 
-		for line: CellLine in new_lines:
-			var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
-			# TODO Если чанка нет, создать его
-			if target_chunk != null:
-				need_expand = true
-				# Требуется отимизация, появление дублей недопустимо
-				# Проверить дубли
-				var line_is_found: bool = false
-				for l: CellLine in target_chunk.get_lines():
-					if line.start == l.start and line.end == l.end:
-						line_is_found = true
-				if not line_is_found:
-					target_chunk.add_line(line)
+	for line: CellLine in new_lines:
+		need_expand = true
+		var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
+		# TODO Если чанка нет, создать его
+		if target_chunk != null:
+			# Требуется отимизация, появление дублей недопустимо
+			# Проверить дубли
+			var line_is_found: bool = false
+			for l: CellLine in target_chunk.get_lines():
+				if line.start == l.start and line.end == l.end:
+					line_is_found = true
+			if not line_is_found:
+				target_chunk.add_line(line)
+	return need_expand
+
 
 func update_chunk_loading() -> void:
 	# Получаем позицию игрока в 2D (используем X и Z)
