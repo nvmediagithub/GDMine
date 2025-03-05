@@ -2,27 +2,16 @@
 extends RefCounted
 class_name ChunkSlice
 
-# Параметры чанка: координаты верхнего левого угла, размеры, флаг загрузки и позиция в сетке (например, Vector2)
-var size: float
-var need_expand: bool = true
 # Массивы для хранения точек, линий и полигонов (если потребуется)
 var lines: Array[CellLine] = []
-
 var polygons: Array = []
-
-func _init(p_size: float, p_need_expand: bool) -> void:
-	size = p_size
-	need_expand = p_need_expand
-	lines = []
-	polygons = []
-
 
 func add_line(line: CellLine) -> void:
 	lines.append(line)
 
 func _to_string() -> String:
-	return "ChunkSlice(size=%d, need_expand=%s, lines=%d)" % [
-		size, str(need_expand), lines.size()
+	return "ChunkSlice(lines=%d)" % [
+		lines.size()
 	]
 
 	

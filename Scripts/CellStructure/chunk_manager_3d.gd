@@ -8,20 +8,16 @@ class_name ChunkManager3D
 @export var max_ray_length: float = 2.0
 # Допустим, у нас есть ссылка на игрока (или камеру)
 @export var player: Node3D
-@export var view_distance: int = 1   # Зона видимости в чанках
+@export var view_distance: int = 3   # Зона видимости в чанках
 
-var chunks: Dictionary = {}
+var chunks: Dictionary[Vector2i, Chunk3D] = {}
 var limit: float = 0.15
 
 func _ready() -> void:
 	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
-	var new_chunk: Chunk3D = Chunk3D.new(Vector2i(0,0))
-	var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true)
-	new_chunk.size = chunk_size
-	new_chunk.set_chunk(new_slice)
 	# Добавляем новый узел как дочерний к менеджеру
-	add_child(new_chunk)
-	chunks[Vector2i(0,0)] = new_chunk
+	load_chunk(Vector2i(0,0))
+	var chunk: Chunk3D = chunks[Vector2i(0,0)]
 	var points: Array[CellPoint] =\
 		CellStructureUtils.generate_child_rays(
 			start_point, 
@@ -31,13 +27,12 @@ func _ready() -> void:
 			max_ray_length
 		)
 	for end_point: CellPoint in points:
-		new_chunk.add_line(CellLine.new(start_point, end_point))
-	load_chunk(Vector2i(0,0))
+		chunk.add_line(CellLine.new(start_point, end_point))
 	# TODO надо адекватно ограничить расширение 
 	for i: int in range(8):
 		expand_structure(Vector2i(0,0))
-	new_chunk.create_polygons()
-	new_chunk.update_debug_geometry()
+	chunk.create_polygons()
+	chunk.update_debug_geometry()
 	
 
 func _process(_delta: float) -> void:
@@ -60,26 +55,27 @@ func get_neighbor_keys(key: Vector2i, radius: int) -> Array[Vector2i]:
 func load_chunk(key: Vector2i) -> void:
 	# Если чанк не существует, создаем его как загруженный
 	if not chunks.has(key):
-		var new_chunk: Chunk3D = Chunk3D.new(key)
-		var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, true)
+		var new_chunk: Chunk3D = Chunk3D.new(key, chunk_size)
 		new_chunk.size = chunk_size
-		new_chunk.set_chunk(new_slice)
+		new_chunk.expand()
+		chunks[key] = new_chunk
 		# Добавляем новый узел как дочерний к менеджеру
 		add_child(new_chunk)
-		chunks[key] = new_chunk
+		print(chunks.size())
+	else:
+		chunks[key].expand()
 
 	# Создаем соседние чанки, если их еще нет, как незагруженные
 	for nkey: Vector2i in get_neighbor_keys(key, 1):
 		if not chunks.has(nkey):
-			var neighbor_chunk: Chunk3D = Chunk3D.new(nkey)
-			var new_slice: ChunkSlice = ChunkSlice.new(chunk_size.x, false)
+			var neighbor_chunk: Chunk3D = Chunk3D.new(nkey, chunk_size)
 			neighbor_chunk.size = chunk_size
-			neighbor_chunk.set_chunk(new_slice)
 			var local_position: Vector2 = nkey * chunk_size.x
 			neighbor_chunk.position =\
 				Vector3(local_position.x, 0, local_position.y)
 			add_child(neighbor_chunk)
 			chunks[nkey] = neighbor_chunk
+			print(chunks.size())
 
 func get_chunk_for_point(point: Vector2) -> Chunk3D:
 	var key: Vector2i = get_chunk_key_for_point(point)
@@ -87,6 +83,7 @@ func get_chunk_for_point(point: Vector2) -> Chunk3D:
 		return chunks[key]
 	return null
 
+# TODO перенести в слайсы или чанк
 func expand_structure(key: Vector2i) -> bool:
 	var need_expand: bool = false
 	var chunk: Chunk3D = chunks[key]
@@ -172,13 +169,8 @@ func update_chunk_loading() -> void:
 	# Получаем позицию игрока в 2D (используем X и Z)
 	var player_pos: Vector2 = Vector2(player.global_transform.origin.x, player.global_transform.origin.z)
 	var center_key: Vector2i = get_chunk_key_for_point(player_pos)
-	
 	# Определяем диапазон чанков для загрузки
-	var keys_to_load: Array[Vector2i] = get_neighbor_keys(center_key, view_distance)
-	
+	var keys_to_load: Array[Vector2i] = get_neighbor_keys(center_key, view_distance)	
 	# Загружаем нужные чанки
 	for key: Vector2i in keys_to_load:
 		load_chunk(key)
-		chunks[key].expand()
-	if center_key in chunks.keys():
-		chunks[center_key].expand()

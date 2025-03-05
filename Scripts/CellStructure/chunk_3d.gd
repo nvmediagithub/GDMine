@@ -3,34 +3,36 @@ extends Node3D
 class_name Chunk3D
 
 # Ссылка на объект типа ChunkSlice, который содержит линии для отрисовки
-var _slice: ChunkSlice = ChunkSlice.new(1, false)
-var size: Vector3 = Vector3.ONE
+# Слоев должно быть много
+var slice: ChunkSlice = ChunkSlice.new()
 var debug_container: Node3D = Node3D.new()
-var grid_pos: Vector2i = Vector2i.ZERO
+# TODO перенести полигоны в слои
 var polygons: Array = []
+var need_expand: bool = false
+var size: Vector3
+var grid_pos: Vector2i
 
-func _init(p_grid_pos: Vector2i) -> void:
+func _init(p_grid_pos: Vector2i, p_size: Vector3) -> void:
 	grid_pos = p_grid_pos
+	size = p_size
 
 func _ready() -> void:
 	print("New chunk")
 	# Создаем контейнер для отладочных узлов и добавляем его как дочерний.
 	add_child(debug_container)
 
-func need_expand() -> bool:
-	return _slice.need_expand
+func is_need_expand() -> bool:
+	return need_expand
 
 func expand() -> void:
-	_slice.need_expand = true
+	need_expand = true
 
 func get_lines() -> Array[CellLine]:
-	return _slice.lines
+	return slice.lines
 
 func add_line(line: CellLine) -> void:
-	_slice.add_line(line)
+	slice.add_line(line)
 
-func set_chunk(new_chunk: ChunkSlice) -> void:
-	_slice = new_chunk
 
 func _clear_debug_container() -> void:
 	# Удаляем все дочерние узлы из контейнера.
@@ -40,8 +42,8 @@ func _clear_debug_container() -> void:
 func create_polygons() -> void:
 	# TODO требуется рефакторинг и оптимизация
 	# TODO сейчас присутствуют дубли, требуется не генерировать дубли
-	for line: CellLine in _slice.lines:
-		var poly_arr: Array = _slice.find_polygon(line)
+	for line: CellLine in slice.lines:
+		var poly_arr: Array = slice.find_polygon(line)
 		var is_found: bool = false
 		# Поиск дублей
 		for i: int in range(polygons.size()):
@@ -58,7 +60,7 @@ func update_debug_geometry() -> void:
 	# Проходим по всем линиям, сохраненным в slice
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	var color: Color = Color(rng.randf_range(0, 1), rng.randf_range(0, 1), rng.randf_range(0, 1))
-	for line: CellLine in _slice.lines:
+	for line: CellLine in slice.lines:
 		var start_pos: Vector3 = Vector3(line.start.position.x, 0, line.start.position.y) - position
 		var end_pos: Vector3 = Vector3(line.end.position.x, 0, line.end.position.y) - position
 		# Опционально: создаем отладочные узлы для проверки позиций точек.
