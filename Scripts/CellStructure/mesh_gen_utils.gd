@@ -11,8 +11,11 @@ static func create_line(start_pos: Vector3, end_pos: Vector3, color: Color) -> M
 	st.add_vertex(end_pos)
 	# Завершаем создание меша.
 	var mesh: Mesh = st.commit()
+	var mat: StandardMaterial3D = StandardMaterial3D.new()
+	mat.albedo_color = color
 	var line_instance: MeshInstance3D = MeshInstance3D.new()
 	line_instance.mesh = mesh
+	line_instance.material_override = mat
 	return line_instance
 
 static func create_polygon_mesh(points: Array, color: Color) -> MeshInstance3D:

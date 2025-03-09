@@ -8,31 +8,14 @@ class_name ChunkManager3D
 @export var max_ray_length: float = 2.0
 # Допустим, у нас есть ссылка на игрока (или камеру)
 @export var player: Node3D
-@export var view_distance: int = 3   # Зона видимости в чанках
+@export var view_distance: int = 1   # Зона видимости в чанках
 
 var chunks: Dictionary[Vector2i, Chunk3D] = {}
 var limit: float = 0.15
 
 func _ready() -> void:
-	var start_point: CellPoint = CellPoint.new(Vector2(chunk_size.x,chunk_size.z) / 2)
 	# Добавляем новый узел как дочерний к менеджеру
 	load_chunk(Vector2i(0,0))
-	var chunk: Chunk3D = chunks[Vector2i(0,0)]
-	var points: Array[CellPoint] =\
-		CellStructureUtils.generate_child_rays(
-			start_point, 
-			0, 
-			3, 
-			min_ray_length, 
-			max_ray_length
-		)
-	for end_point: CellPoint in points:
-		chunk.add_line(CellLine.new(start_point, end_point))
-	# TODO надо адекватно ограничить расширение 
-	for i: int in range(8):
-		expand_structure(Vector2i(0,0))
-	chunk.create_polygons()
-	chunk.update_debug_geometry()
 	
 
 func _process(_delta: float) -> void:
@@ -55,27 +38,40 @@ func get_neighbor_keys(key: Vector2i, radius: int) -> Array[Vector2i]:
 func load_chunk(key: Vector2i) -> void:
 	# Если чанк не существует, создаем его как загруженный
 	if not chunks.has(key):
-		var new_chunk: Chunk3D = Chunk3D.new(key, chunk_size)
-		new_chunk.size = chunk_size
-		new_chunk.expand()
-		chunks[key] = new_chunk
-		# Добавляем новый узел как дочерний к менеджеру
+		var new_chunk: Chunk3D = init_chunk(key)
 		add_child(new_chunk)
-		print(chunks.size())
-	else:
-		chunks[key].expand()
-
 	# Создаем соседние чанки, если их еще нет, как незагруженные
 	for nkey: Vector2i in get_neighbor_keys(key, 1):
 		if not chunks.has(nkey):
-			var neighbor_chunk: Chunk3D = Chunk3D.new(nkey, chunk_size)
-			neighbor_chunk.size = chunk_size
-			var local_position: Vector2 = nkey * chunk_size.x
-			neighbor_chunk.position =\
-				Vector3(local_position.x, 0, local_position.y)
-			add_child(neighbor_chunk)
-			chunks[nkey] = neighbor_chunk
-			print(chunks.size())
+			var new_chunk: Chunk3D = init_chunk(key)
+			add_child(new_chunk)
+
+func init_chunk(key: Vector2i) -> Chunk3D:
+		var new_chunk: Chunk3D = Chunk3D.new(key, chunk_size)
+		new_chunk.size = chunk_size
+		chunks[key] = new_chunk
+		
+		var start_point: CellPoint =\
+			CellPoint.new(
+				Vector2(key.x + chunk_size.x / 2, key.y + chunk_size.y /2 )
+			)
+		var end_points: Array[CellPoint] =\
+		CellStructureUtils.generate_child_rays(
+			start_point, 
+			0, 
+			3, 
+			min_ray_length, 
+			max_ray_length
+		)
+		for end_point: CellPoint in end_points:
+			new_chunk.add_line(CellLine.new(start_point, end_point))
+			
+		
+		while new_chunk.status == Chunk3D.Status.RED:
+			expand_structure(Vector2i(0,0))
+		new_chunk.create_polygons()
+		new_chunk.update_debug_geometry()
+		return new_chunk
 
 func get_chunk_for_point(point: Vector2) -> Chunk3D:
 	var key: Vector2i = get_chunk_key_for_point(point)
@@ -84,8 +80,7 @@ func get_chunk_for_point(point: Vector2) -> Chunk3D:
 	return null
 
 # TODO перенести в слайсы или чанк
-func expand_structure(key: Vector2i) -> bool:
-	var need_expand: bool = false
+func expand_structure(key: Vector2i) -> void:
 	var chunk: Chunk3D = chunks[key]
 	#if not chunk.need_expand():
 		#continue
@@ -150,7 +145,6 @@ func expand_structure(key: Vector2i) -> bool:
 			new_lines.append(new_line)
 
 	for line: CellLine in new_lines:
-		need_expand = true
 		var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
 		# TODO Если чанка нет, создать его
 		if target_chunk != null:
@@ -162,7 +156,8 @@ func expand_structure(key: Vector2i) -> bool:
 					line_is_found = true
 			if not line_is_found:
 				target_chunk.add_line(line)
-	return need_expand
+	if new_lines.size() == 0:
+		chunk.status = Chunk3D.Status.YELLOW
 
 
 func update_chunk_loading() -> void:

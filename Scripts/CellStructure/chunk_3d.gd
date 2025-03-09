@@ -2,30 +2,23 @@
 extends Node3D
 class_name Chunk3D
 
+enum Status {RED, YELLOW, GREEN}
 # Ссылка на объект типа ChunkSlice, который содержит линии для отрисовки
-# Слоев должно быть много
+# TODO Слоев должно быть много
 var slice: ChunkSlice = ChunkSlice.new()
 var debug_container: Node3D = Node3D.new()
 # TODO перенести полигоны в слои
 var polygons: Array = []
-var need_expand: bool = false
 var size: Vector3
 var grid_pos: Vector2i
+var status: Status = Status.RED
 
 func _init(p_grid_pos: Vector2i, p_size: Vector3) -> void:
 	grid_pos = p_grid_pos
 	size = p_size
 
 func _ready() -> void:
-	print("New chunk")
-	# Создаем контейнер для отладочных узлов и добавляем его как дочерний.
 	add_child(debug_container)
-
-func is_need_expand() -> bool:
-	return need_expand
-
-func expand() -> void:
-	need_expand = true
 
 func get_lines() -> Array[CellLine]:
 	return slice.lines
@@ -52,17 +45,27 @@ func create_polygons() -> void:
 		if not is_found:
 			polygons.append(poly_arr)
 	
-
-
-
 func update_debug_geometry() -> void:
 	_clear_debug_container()
 	# Проходим по всем линиям, сохраненным в slice
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	var color: Color = Color(rng.randf_range(0, 1), rng.randf_range(0, 1), rng.randf_range(0, 1))
+	var color: Color =\
+		Color(rng.randf_range(0, 1), rng.randf_range(0, 1), rng.randf_range(0, 1))
+	var line_color: Color
+	if status == Status.RED:
+		line_color = Color(1.0, 0.0, 0.0)
+	elif status == Status.YELLOW:
+		line_color = Color(1.0, 1.0, 0.0)
+	elif status == Status.GREEN:
+		line_color = Color(0.0, 0.0, 1.0)
+	else:
+		line_color = Color(0.0, 1.0, 1.0)
+		
 	for line: CellLine in slice.lines:
-		var start_pos: Vector3 = Vector3(line.start.position.x, 0, line.start.position.y) - position
-		var end_pos: Vector3 = Vector3(line.end.position.x, 0, line.end.position.y) - position
+		var start_pos: Vector3 =\
+			Vector3(line.start.position.x, 0, line.start.position.y) - position
+		var end_pos: Vector3 =\
+			Vector3(line.end.position.x, 0, line.end.position.y) - position
 		# Опционально: создаем отладочные узлы для проверки позиций точек.
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = color
@@ -81,7 +84,8 @@ func update_debug_geometry() -> void:
 		debug_container.add_child(end_placeholder)
 		
 		# Создаем линию между start_pos и end_pos с помощью SurfaceTool.
-		var line_instance: MeshInstance3D = MeshGenUtils.create_line(start_pos, end_pos, Color(1, 0, 0))
+		var line_instance: MeshInstance3D =\
+			MeshGenUtils.create_line(start_pos, end_pos, Color(1, 0, 0))
 		debug_container.add_child(line_instance)
 		# Рисуем границы чанка согласно size
 
@@ -89,7 +93,8 @@ func update_debug_geometry() -> void:
 	for cell_point_arr: Array[CellPoint] in polygons:
 		# Например, выбираем случайный цвет для полигона.
 		var poly_color: Color = Color(rng.randf(), rng.randf(), rng.randf())
-		var poly_mesh: MeshInstance3D = MeshGenUtils.create_polygon_mesh(cell_point_arr, poly_color)
+		var poly_mesh: MeshInstance3D =\
+			MeshGenUtils.create_polygon_mesh(cell_point_arr, poly_color)
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = poly_color
 		poly_mesh.material_override = mat
@@ -112,6 +117,7 @@ func update_debug_geometry() -> void:
 	]
 	
 	for segment: Array in boundaries:
-		var boundary_line: MeshInstance3D = MeshGenUtils.create_line(segment[0], segment[1], Color(0, 1, 0))
+		var boundary_line: MeshInstance3D =\
+			MeshGenUtils.create_line(segment[0], segment[1], line_color)
 		debug_container.add_child(boundary_line)
 		
