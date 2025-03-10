@@ -4,19 +4,14 @@ class_name ChunkManager3D
 # Параметры сетки чанков
 @export var origin: Vector2i = Vector2i(0,0)
 @export var chunk_size: Vector3 = Vector3(8.0,8.0,8.0)
-@export var min_ray_length: float = 1.0
-@export var max_ray_length: float = 2.0
+@export var min_ray_length: float = 0.5
+@export var max_ray_length: float = 1.5
 # Допустим, у нас есть ссылка на игрока (или камеру)
 @export var player: Node3D
 @export var view_distance: int = 1   # Зона видимости в чанках
 
 var chunks: Dictionary[Vector2i, Chunk3D] = {}
 var limit: float = 0.15
-
-func _ready() -> void:
-	# Добавляем новый узел как дочерний к менеджеру
-	load_chunk(Vector2i(0,0))
-	
 
 func _process(_delta: float) -> void:
 	# При каждом кадре проверяем, изменилось ли положение игрока
@@ -39,21 +34,25 @@ func load_chunk(key: Vector2i) -> void:
 	# Если чанк не существует, создаем его как загруженный
 	if not chunks.has(key):
 		var new_chunk: Chunk3D = init_chunk(key)
+		new_chunk.position = Vector3(key.x * chunk_size.x, 0, key.y * chunk_size.z)
 		add_child(new_chunk)
 	# Создаем соседние чанки, если их еще нет, как незагруженные
 	for nkey: Vector2i in get_neighbor_keys(key, 1):
 		if not chunks.has(nkey):
-			var new_chunk: Chunk3D = init_chunk(key)
+			var new_chunk: Chunk3D = init_chunk(nkey)
+			new_chunk.position = Vector3(nkey.x * chunk_size.x, 0, nkey.y * chunk_size.z)
 			add_child(new_chunk)
 
 func init_chunk(key: Vector2i) -> Chunk3D:
+		if chunks.has(key): return
 		var new_chunk: Chunk3D = Chunk3D.new(key, chunk_size)
 		new_chunk.size = chunk_size
+		new_chunk.position = Vector3(key.x * chunk_size.x, 0.0, key.y * chunk_size.z)
 		chunks[key] = new_chunk
 		
 		var start_point: CellPoint =\
 			CellPoint.new(
-				Vector2(key.x + chunk_size.x / 2, key.y + chunk_size.y /2 )
+				Vector2(chunk_size.x / 2, chunk_size.z / 2)
 			)
 		var end_points: Array[CellPoint] =\
 		CellStructureUtils.generate_child_rays(
@@ -66,9 +65,8 @@ func init_chunk(key: Vector2i) -> Chunk3D:
 		for end_point: CellPoint in end_points:
 			new_chunk.add_line(CellLine.new(start_point, end_point))
 			
-		
 		while new_chunk.status == Chunk3D.Status.RED:
-			expand_structure(Vector2i(0,0))
+			expand_structure(key)
 		new_chunk.create_polygons()
 		new_chunk.update_debug_geometry()
 		return new_chunk
@@ -82,8 +80,6 @@ func get_chunk_for_point(point: Vector2) -> Chunk3D:
 # TODO перенести в слайсы или чанк
 func expand_structure(key: Vector2i) -> void:
 	var chunk: Chunk3D = chunks[key]
-	#if not chunk.need_expand():
-		#continue
 	var new_lines: Array[CellLine] = []
 	for chunk_line: CellLine in chunk.get_lines():
 		var p_start: CellPoint = chunk_line.start
@@ -110,11 +106,7 @@ func expand_structure(key: Vector2i) -> void:
 		for target_point: CellPoint in target_points:
 			var last_line: CellLine = null
 			var all_lines: Array[CellLine] = new_lines + chunk.get_lines()
-			for neighbor_key: Vector2i in get_neighbor_keys(chunk.grid_pos, 1):
-				if chunks.has(neighbor_key):
-					var neighbor_chunk: Chunk3D = chunks[neighbor_key]
-					all_lines += neighbor_chunk.get_lines()
-					
+
 			for line: CellLine in all_lines:
 				var inter: CellPoint =\
 					CellStructureUtils.line_intersection(
@@ -127,7 +119,8 @@ func expand_structure(key: Vector2i) -> void:
 					last_line = line
 					target_point.position = inter.position
 					target_point.has_emitted = true
-			
+
+					
 			# Если есть пересечение
 			if (last_line != null):
 				# Если точка пересечения близко "подтягиваем позицию"
@@ -145,9 +138,12 @@ func expand_structure(key: Vector2i) -> void:
 			new_lines.append(new_line)
 
 	for line: CellLine in new_lines:
-		var target_chunk: Chunk3D = get_chunk_for_point(line.start.position)
-		# TODO Если чанка нет, создать его
-		if target_chunk != null:
+		var gpos: Vector2 =\
+			line.start.position +\
+			Vector2(chunk.position.x, chunk.position.z)
+		var target_chunk: Chunk3D = get_chunk_for_point(gpos)
+		
+		if target_chunk == chunk:
 			# Требуется отимизация, появление дублей недопустимо
 			# Проверить дубли
 			var line_is_found: bool = false
@@ -158,7 +154,6 @@ func expand_structure(key: Vector2i) -> void:
 				target_chunk.add_line(line)
 	if new_lines.size() == 0:
 		chunk.status = Chunk3D.Status.YELLOW
-
 
 func update_chunk_loading() -> void:
 	# Получаем позицию игрока в 2D (используем X и Z)

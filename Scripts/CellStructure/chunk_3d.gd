@@ -63,9 +63,9 @@ func update_debug_geometry() -> void:
 		
 	for line: CellLine in slice.lines:
 		var start_pos: Vector3 =\
-			Vector3(line.start.position.x, 0, line.start.position.y) - position
+			Vector3(line.start.position.x, 0, line.start.position.y)
 		var end_pos: Vector3 =\
-			Vector3(line.end.position.x, 0, line.end.position.y) - position
+			Vector3(line.end.position.x, 0, line.end.position.y)
 		# Опционально: создаем отладочные узлы для проверки позиций точек.
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = color

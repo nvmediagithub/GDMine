@@ -71,11 +71,7 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 
 		# Многоугольник оказался вогнутый, добавляем принудительно грань, но полигон не формируем 
 		# TODO Подумать на сколько это хорошее решение
-		if best_angle >= 0:			
-			var new_line: CellLine = CellLine.new(current_point, end_point)
-			if line.start == current_point and line.end == end_point:
-				return []
-			self.lines.append(new_line)
+		if best_angle >= 0:
 			return []
 			
 		# Если ни одного кандидата не выбрано, завершаем поиск
