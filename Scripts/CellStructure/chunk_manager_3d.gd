@@ -11,7 +11,7 @@ class_name ChunkManager3D
 @export var view_distance: int = 1   # Зона видимости в чанках
 
 var chunks: Dictionary[Vector2i, Chunk3D] = {}
-var limit: float = 0.15
+var limit: float = 0.2
 
 func _process(_delta: float) -> void:
 	# При каждом кадре проверяем, изменилось ли положение игрока
@@ -134,8 +134,13 @@ func expand_structure(key: Vector2i) -> void:
 					var new_split: CellLine = CellLine.new(target_point, last_line.end)
 					last_line.end = target_point
 					new_lines.append(new_split)
-			var new_line: CellLine = CellLine.new(p_end, target_point)
-			new_lines.append(new_line)
+			
+			#if (p_end.position - target_point.position).length() < limit:
+				#chunk_line.end = target_point
+				#p_end = chunk_line.end
+			if p_end != target_point:
+				var new_line: CellLine = CellLine.new(p_end, target_point)
+				new_lines.append(new_line)
 
 	for line: CellLine in new_lines:
 		var gpos: Vector2 =\
