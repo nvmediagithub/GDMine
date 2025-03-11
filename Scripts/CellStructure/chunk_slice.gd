@@ -31,7 +31,7 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 	visited_lines.append(line)
 	
 	# Ограничиваем число итераций, чтобы избежать бесконечного цикла
-	var max_iterations: int = self.lines.size() * 3
+	var max_iterations: int = self.lines.size() * 5
 	
 	while current_point != end_point and max_iterations > 0:
 		max_iterations -= 1
@@ -71,8 +71,8 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 
 		# Многоугольник оказался вогнутый, добавляем принудительно грань, но полигон не формируем 
 		# TODO Подумать на сколько это хорошее решение
-		if best_angle >= 0:
-			return []
+		#if best_angle >= 0:
+			#return []
 			
 		# Если ни одного кандидата не выбрано, завершаем поиск
 		if best_line == null:
@@ -86,9 +86,9 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 		current_point = next_point
 		polygon_points.append(current_point)
 		
-		# Если цикл слишком длинный, возможно мы зашли в тупик – выходим с пустым результатом
-		if polygon_points.size() > self.lines.size():
-			return []
+		## Если цикл слишком длинный, возможно мы зашли в тупик – выходим с пустым результатом
+		#if polygon_points.size() > self.lines.size():
+			#return []
 	
 	# Если целевая точка не достигнута, возвращаем пустой массив
 	if current_point != end_point:

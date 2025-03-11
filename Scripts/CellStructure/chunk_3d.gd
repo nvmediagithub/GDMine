@@ -35,15 +35,18 @@ func _clear_debug_container() -> void:
 func create_polygons() -> void:
 	# TODO требуется рефакторинг и оптимизация
 	# TODO сейчас присутствуют дубли, требуется не генерировать дубли
-	for line: CellLine in slice.lines:
-		var poly_arr: Array = slice.find_polygon(line)
-		var is_found: bool = false
-		# Поиск дублей
-		for i: int in range(polygons.size()):
-			is_found = poly_arr.all(func(el: CellPoint) -> bool: return el in polygons[i])
-			if is_found: break
-		if not is_found:
-			polygons.append(poly_arr)
+	# TODO сейчас генерится 2 полигона за раз на 1 линию, требуется оптимизация
+	for l: CellLine in slice.lines:
+		var lines: Array[CellLine] = [l, CellLine.new(l.end, l.start)]
+		for line: CellLine in lines:
+			var poly_arr: Array = slice.find_polygon(line)
+			var is_found: bool = false
+			# Поиск дублей
+			for i: int in range(polygons.size()):
+				is_found = poly_arr.all(func(el: CellPoint) -> bool: return el in polygons[i])
+				if is_found: break
+			if not is_found:
+				polygons.append(poly_arr)
 	
 func update_debug_geometry() -> void:
 	_clear_debug_container()

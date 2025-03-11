@@ -125,23 +125,26 @@ func expand_structure(key: Vector2i) -> void:
 			if (last_line != null):
 				# Если точка пересечения близко "подтягиваем позицию"
 				if (target_point.position - last_line.start.position).length() < limit:
-					last_line.start.position = target_point.position
 					target_point = last_line.start
 				elif (target_point.position - last_line.end.position).length() < limit:
-					last_line.end.position = target_point.position
 					target_point = last_line.end
 				else: # разбить линию на 2
 					var new_split: CellLine = CellLine.new(target_point, last_line.end)
 					last_line.end = target_point
 					new_lines.append(new_split)
+					
+			var new_line: CellLine = CellLine.new(p_end, target_point)
 			
 			#if (p_end.position - target_point.position).length() < limit:
 				#chunk_line.end = target_point
-				#p_end = chunk_line.end
-			if p_end != target_point:
-				var new_line: CellLine = CellLine.new(p_end, target_point)
+				#continue
+			if 	new_lines.is_empty() or \
+				new_lines.back().end != new_line.end or \
+				new_lines.back().start != new_line.start:
+				
 				new_lines.append(new_line)
-
+			
+	
 	for line: CellLine in new_lines:
 		var gpos: Vector2 =\
 			line.start.position +\
@@ -149,14 +152,9 @@ func expand_structure(key: Vector2i) -> void:
 		var target_chunk: Chunk3D = get_chunk_for_point(gpos)
 		
 		if target_chunk == chunk:
-			# Требуется отимизация, появление дублей недопустимо
-			# Проверить дубли
-			var line_is_found: bool = false
-			for l: CellLine in target_chunk.get_lines():
-				if line.start == l.start and line.end == l.end:
-					line_is_found = true
-			if not line_is_found:
-				target_chunk.add_line(line)
+			target_chunk.add_line(line)
+	
+	# TODO когда будут прогруженны соседние чаник статус зеленный
 	if new_lines.size() == 0:
 		chunk.status = Chunk3D.Status.YELLOW
 
