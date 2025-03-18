@@ -2,12 +2,6 @@
 extends RefCounted
 class_name CellStructureUtils
 
-static func calculate_angle(start: Vector2, end: Vector2) -> float:
-	# Вычисление угла в радианах
-	var dx: float = end.x - start.x
-	var dy: float = end.y - start.y
-	return atan2(dy, dx)
-
 static func generate_child_rays(
 		start_point: CellPoint, 
 		base_direction: float, 
@@ -47,38 +41,3 @@ static func generate_child_rays(
 		var end_point: CellPoint = CellPoint.new(Vector2(new_x, new_y))
 		points.append(end_point)
 	return points
-
-
-static func line_intersection(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2, tol: float = 1e-6) -> CellPoint:
-	"""
-	Вычисляет точку пересечения двух отрезков (p1, p2) и (p3, p4) с учетом допуска tol.
-	p1, p2, p3, p4 – объекты Vector2, представляющие концы отрезков.
-	Возвращает Vector2 с координатами точки пересечения, если отрезки пересекаются, иначе null.
-	"""
-
-	if (p1 - p3).length() < tol or (p1 - p4).length() < tol:
-		return null
-		
-	# Направления отрезков
-	var d1: Vector2 = p2 - p1
-	var d2: Vector2 = p4 - p3
-		
-	# Определитель
-	var det: float = d1.x * d2.y - d1.y * d2.x
-	# Если определитель близок к нулю, отрезки параллельны или совпадают
-	if abs(det) < tol:
-		return null
-	# Вычисление параметра t для точки пересечения
-	var diff: Vector2 = p3 - p1
-	var t: float = (diff.x * d2.y - diff.y * d2.x) / det
-	# Проверка, что точка пересечения находится на первом отрезке
-	if t < 0 or t > 1:
-		return null
-	# Вычисление параметра u для точки пересечения
-	var u: float = (diff.x * d1.y - diff.y * d1.x) / det
-	# Проверка, что точка пересечения находится на втором отрезке
-	if u < 0 or u > 1:
-		return null
-	# Вычисление координат точки пересечения
-	var intersection: Vector2 = p1 + t * d1
-	return CellPoint.new(intersection)

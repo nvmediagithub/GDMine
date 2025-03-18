@@ -88,10 +88,8 @@ func expand_structure(key: Vector2i) -> void:
 			continue
 		p_end.has_emitted = true
 		var base_direction: float =\
-			CellStructureUtils.calculate_angle(
-				p_start.position, 
-				p_end.position
-			)
+			(p_end.position - p_start.position).angle()
+
 		# Создаем новые точки лучей
 		var target_points: Array[CellPoint] =\
 			CellStructureUtils.generate_child_rays(
@@ -102,14 +100,17 @@ func expand_structure(key: Vector2i) -> void:
 				max_ray_length, 
 				PI / 2
 			)
+		
+
 		# Поиск линии и точки пересечения
 		for target_point: CellPoint in target_points:
-			var last_line: CellLine = null
 			var all_lines: Array[CellLine] = new_lines + chunk.get_lines()
-
+			var last_line: CellLine = null
 			for line: CellLine in all_lines:
-				var inter: CellPoint =\
-					CellStructureUtils.line_intersection(
+				if p_end == line.start or p_end == line.end:
+					continue
+				var inter: Variant =\
+					Geometry2D.segment_intersects_segment(
 						p_end.position, 
 						target_point.position, 
 						line.start.position, 
@@ -117,7 +118,7 @@ func expand_structure(key: Vector2i) -> void:
 					)
 				if inter != null:
 					last_line = line
-					target_point.position = inter.position
+					target_point.position = inter
 					target_point.has_emitted = true
 
 					
