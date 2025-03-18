@@ -110,10 +110,10 @@ func expand_structure(key: Vector2i) -> void:
 			for line: CellLine in all_lines:
 				var inter: CellPoint =\
 					CellStructureUtils.line_intersection(
-						p_end, 
-						target_point, 
-						line.start, 
-						line.end
+						p_end.position, 
+						target_point.position, 
+						line.start.position, 
+						line.end.position
 					)
 				if inter != null:
 					last_line = line

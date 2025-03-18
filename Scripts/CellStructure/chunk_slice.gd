@@ -86,9 +86,9 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 		current_point = next_point
 		polygon_points.append(current_point)
 		
-		## Если цикл слишком длинный, возможно мы зашли в тупик – выходим с пустым результатом
-		#if polygon_points.size() > self.lines.size():
-			#return []
+		# Если цикл слишком длинный, возможно мы зашли в тупик – выходим с пустым результатом
+		if polygon_points.size() > self.lines.size():
+			return []
 	
 	# Если целевая точка не достигнута, возвращаем пустой массив
 	if current_point != end_point:

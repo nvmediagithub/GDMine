@@ -49,19 +49,19 @@ static func generate_child_rays(
 	return points
 
 
-static func line_intersection(p1: CellPoint, p2: CellPoint, p3: CellPoint, p4: CellPoint, tol: float = 1e-6) -> CellPoint:
+static func line_intersection(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2, tol: float = 1e-6) -> CellPoint:
 	"""
 	Вычисляет точку пересечения двух отрезков (p1, p2) и (p3, p4) с учетом допуска tol.
 	p1, p2, p3, p4 – объекты Vector2, представляющие концы отрезков.
 	Возвращает Vector2 с координатами точки пересечения, если отрезки пересекаются, иначе null.
 	"""
 
-	if p1 == p3 or p1 == p4:
+	if (p1 - p3).length() < tol or (p1 - p4).length() < tol:
 		return null
 		
 	# Направления отрезков
-	var d1: Vector2 = p2.position - p1.position
-	var d2: Vector2 = p4.position - p3.position
+	var d1: Vector2 = p2 - p1
+	var d2: Vector2 = p4 - p3
 		
 	# Определитель
 	var det: float = d1.x * d2.y - d1.y * d2.x
@@ -69,7 +69,7 @@ static func line_intersection(p1: CellPoint, p2: CellPoint, p3: CellPoint, p4: C
 	if abs(det) < tol:
 		return null
 	# Вычисление параметра t для точки пересечения
-	var diff: Vector2 = p3.position - p1.position
+	var diff: Vector2 = p3 - p1
 	var t: float = (diff.x * d2.y - diff.y * d2.x) / det
 	# Проверка, что точка пересечения находится на первом отрезке
 	if t < 0 or t > 1:
@@ -80,5 +80,5 @@ static func line_intersection(p1: CellPoint, p2: CellPoint, p3: CellPoint, p4: C
 	if u < 0 or u > 1:
 		return null
 	# Вычисление координат точки пересечения
-	var intersection: Vector2 = p1.position + t * d1
+	var intersection: Vector2 = p1 + t * d1
 	return CellPoint.new(intersection)
