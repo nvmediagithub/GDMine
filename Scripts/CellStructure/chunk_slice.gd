@@ -77,6 +77,9 @@ func find_polygon(line: CellLine) -> Array[CellPoint]:
 		# Если ни одного кандидата не выбрано, завершаем поиск
 		if best_line == null:
 			return []
+			
+		if best_line.polygon_membership > 1:
+			return []
 		
 		# Обновляем текущую точку: переходим по выбранной линии к соседней точке
 		var next_point: CellPoint =  best_line.end if (best_line.start == current_point) else best_line.start

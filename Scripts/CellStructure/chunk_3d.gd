@@ -20,6 +20,12 @@ func _init(p_grid_pos: Vector2i, p_size: Vector3) -> void:
 func _ready() -> void:
 	add_child(debug_container)
 
+func get_position_2d() -> Vector2:
+	return Vector2(position.x, position.z)
+	
+func get_global_position_2d() -> Vector2:
+	return Vector2(global_position.x, global_position.z)
+	
 func get_lines() -> Array[CellLine]:
 	return slice.lines
 
@@ -38,6 +44,7 @@ func create_polygons() -> void:
 	# TODO сейчас генерится 2 полигона за раз на 1 линию, требуется оптимизация
 	for l: CellLine in slice.lines:
 		var lines: Array[CellLine] = [l, CellLine.new(l.end, l.start)]
+		l.polygon_membership = 2
 		for line: CellLine in lines:
 			var poly_arr: Array = slice.find_polygon(line)
 			var is_found: bool = false

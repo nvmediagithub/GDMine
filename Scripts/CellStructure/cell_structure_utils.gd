@@ -22,7 +22,7 @@ static func generate_child_rays(
 	var points: Array[CellPoint] = []
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	var base_step: float = max_deviation * 2 / child_count
-	var deviation_limit: float = base_step / 6
+	var deviation_limit: float = base_step / 4
 	for n: int in range(child_count):
 		# Вычисляем случайное отклонение
 		var deviation: float =\
