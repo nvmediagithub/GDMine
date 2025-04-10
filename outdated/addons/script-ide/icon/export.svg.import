@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://bvu2gnj8fv2kw"
+path="res://.godot/imported/export.svg-1b30ae9f15cea1c99e6d8d2a2df5fb22.image"
+
+[deps]
+
+source_file="res://outdated/addons/script-ide/icon/export.svg"
+dest_files=["res://.godot/imported/export.svg-1b30ae9f15cea1c99e6d8d2a2df5fb22.image"]
+
+[params]
+

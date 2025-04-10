@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://c4thlpoxjhqsu"]
+
+[ext_resource type="Shader" uid="uid://dh5uinxmko03y" path="res://outdated/Assets/Shaders/block_shader.gdshader" id="1_70x1c"]
+[ext_resource type="Texture2D" uid="uid://cwv248gs6dyv8" path="res://outdated/Assets/Textures/dirt.png" id="2_hc3yy"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_70x1c")
+shader_parameter/albedo_texture = ExtResource("2_hc3yy")
