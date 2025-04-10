@@ -1,6 +1,7 @@
 class_name ConfigManager
 
-var config_data = {}
+var config_data: Dictionary = {}
 
-func load(path):
-    config_data = {}
+# TODO Заменить на нормальное название функции
+func my_load(path: String) -> void:
+	config_data = {}
