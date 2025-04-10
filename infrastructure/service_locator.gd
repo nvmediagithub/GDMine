@@ -1,9 +1,9 @@
 class_name ServiceLocator
 
-static var services = {}
+static var services: Dictionary = {}
 
-static func register(name, instance):
-    services[name] = instance
+static func register(name: String, instance: Enemy) -> void:
+	services[name] = instance
 
 static func get(name):
-    return services.get(name)
+	return services.get(name)
