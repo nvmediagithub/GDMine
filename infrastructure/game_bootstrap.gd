@@ -1,16 +1,17 @@
 extends Node
 class_name GameBootstrap
 
-func initialize() -> void:
-	print("Bootstrapping game...")
-	
-	# Пример регистрации сервисов
-	var log_service: LogService = LogService.new()
-	var config_manager: ConfigManager = ConfigManager.new()
-	var save_service: SaveService = SaveService.new()
-#
-	ServiceLocator.register("LogService", log_service)
-	ServiceLocator.register("ConfigManager", config_manager)
-	ServiceLocator.register("SaveService", save_service)
+var steps: Array = []
 
-	log_service.log("Game initialized successfully.")
+func _ready() -> void:
+	register_core_steps()
+	run_steps()
+
+func register_core_steps() -> void:
+	steps.append(preload("res://infrastructure/bootsteps/log_bootstrap.gd").new())
+	steps.append(preload("res://infrastructure/bootsteps/config_bootstrap.gd").new())
+	steps.append(preload("res://infrastructure/bootsteps/mod_bootstrap.gd").new())
+
+func run_steps() -> void:
+	for step: Variant in steps:
+		step.execute()
