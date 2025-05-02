@@ -1,8 +1,10 @@
-extends Node
+extends IBootstrapStep
 class_name ModBootstrap
-implements IBootstrapStep
+
+# TODO add implements IBootstrapStep after godot update
+#implements IBootstrapStep
 
 func execute() -> void:
-	var mod_loader = preload("res://infrastructure/mod_loader.gd").new()
+	var mod_loader: ModLoader = ModLoader.new()
 	mod_loader.load_mods()
 	ServiceLocator.resolve("LogService").log("Mods loaded.")

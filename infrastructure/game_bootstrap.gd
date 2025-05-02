@@ -1,17 +1,25 @@
+# infrastructure/game_bootstrap.gd
 extends Node
 class_name GameBootstrap
 
-var steps: Array = []
+var steps: Array[IBootstrapStep] = []
 
 func _ready() -> void:
 	register_core_steps()
 	run_steps()
 
 func register_core_steps() -> void:
-	steps.append(preload("res://infrastructure/bootsteps/log_bootstrap.gd").new())
-	steps.append(preload("res://infrastructure/bootsteps/config_bootstrap.gd").new())
-	steps.append(preload("res://infrastructure/bootsteps/mod_bootstrap.gd").new())
-
+	steps.append(LogBootstrap.new())
+	steps.append(ConfigBootstrap.new())
+	steps.append(EventBusBootstrap.new())
+	
+	var ui_bootstrap: UIBootstrap = UIBootstrap.new()
+	add_child(ui_bootstrap);
+	steps.append(ui_bootstrap)
+	
+	steps.append(WorldGenerationBootstrap.new())
+	steps.append(ModBootstrap.new())
+	
 func run_steps() -> void:
-	for step: Variant in steps:
+	for step: IBootstrapStep in steps:
 		step.execute()

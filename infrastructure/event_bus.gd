@@ -1,4 +1,4 @@
-extends Node
+# infrastructure/event_bus.gd
+class_name EventBus
 
-signal player_died
-signal item_collected
+signal start_game

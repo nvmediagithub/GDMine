@@ -1,8 +1,10 @@
-extends Node
+extends IBootstrapStep
 class_name LogBootstrap
-implements IBootstrapStep
+
+# TODO add implements IBootstrapStep after godot update
+#implements IBootstrapStep
 
 func execute() -> void:
-	var log_service = preload("res://infrastructure/log_service.gd").new()
+	var log_service: LogService = LogService.new()
 	ServiceLocator.register("LogService", log_service)
 	log_service.log("Log service initialized.")

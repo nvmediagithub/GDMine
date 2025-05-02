@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://cy4642e86bbwk"]
+
+[ext_resource type="Script" uid="uid://cw25vbr6psodm" path="res://scripts/domain/word/world_generator.gd" id="1_efca6"]
+[ext_resource type="Script" uid="uid://lpdcoc4mbw52" path="res://scenes/test/free_camera.gd" id="2_58gxn"]
+
+[sub_resource type="Environment" id="Environment_efca6"]
+
+[node name="TestWorldScene" type="Node3D"]
+script = ExtResource("1_efca6")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_efca6")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+script = ExtResource("2_58gxn")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]

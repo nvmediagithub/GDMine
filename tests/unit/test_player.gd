@@ -1,4 +1,4 @@
 extends Node
 
 func _ready():
-    print("Player unit test")
+	print("Player unit test")

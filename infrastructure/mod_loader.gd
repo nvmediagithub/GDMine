@@ -1,4 +1,4 @@
-extends Node
+class_name ModLoader
 
-func load_mods():
-    print("Loading mods...")
+func load_mods() -> void:
+	print("Loading mods...")

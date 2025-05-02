@@ -1,4 +1,4 @@
 extends Node
 
 func _ready():
-    print("Integration test for mod loading")
+	print("Integration test for mod loading")

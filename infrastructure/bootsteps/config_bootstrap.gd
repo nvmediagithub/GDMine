@@ -1,8 +1,10 @@
-extends Node
+# config_bootstrap.gd
+extends IBootstrapStep
 class_name ConfigBootstrap
-implements IBootstrapStep
+# TODO add implements IBootstrapStep after godot update
+#implements IBootstrapStep
 
 func execute() -> void:
-	var config = preload("res://infrastructure/config_manager.gd").new()
+	var config: ConfigManager = ConfigManager.new()
 	ServiceLocator.register("ConfigManager", config)
 	ServiceLocator.resolve("LogService").log("Config service initialized.")
