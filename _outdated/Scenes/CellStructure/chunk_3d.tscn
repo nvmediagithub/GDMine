@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bcb561tcmroxe"]
+
+[ext_resource type="Script" uid="uid://81olxe54l5my" path="res://_outdated/Scripts/CellStructure/chunk_3d.gd" id="1_utf0o"]
+
+[node name="Chunk3D" type="Node3D"]
+script = ExtResource("1_utf0o")

@@ -1,4 +1,5 @@
 # scripts/domain/word/world_generator.gd
+
 extends Node3D
 class_name WorldGenerator
 

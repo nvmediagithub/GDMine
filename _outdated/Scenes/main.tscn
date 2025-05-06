@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://d1ga3cec5qfdn"]
+
+[ext_resource type="PackedScene" uid="uid://cq7bn36xhgosl" path="res://_outdated/Scenes/CellStructure/chunk_manager_3d.tscn" id="2_4f1d7"]
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://scenes/free_camera/camera_rig.tscn" id="2_uttyp"]
+
+[node name="Main" type="Node3D"]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+
+[node name="CameraRig" parent="." instance=ExtResource("2_uttyp")]
+transform = Transform3D(1, 0, 0, 0, 0.785511, 0.618847, 0, -0.618847, 0.785511, 4.58725, 4.9395, 9.66765)
+speed = 1.5
+mouse_sensitivity = 0.03
+
+[node name="ChunkManager3D" parent="." node_paths=PackedStringArray("player") instance=ExtResource("2_4f1d7")]
+player = NodePath("../CameraRig")

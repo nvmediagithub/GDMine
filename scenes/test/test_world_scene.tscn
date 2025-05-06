@@ -1,9 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://cy4642e86bbwk"]
+[gd_scene load_steps=5 format=3 uid="uid://cy4642e86bbwk"]
 
 [ext_resource type="Script" uid="uid://cw25vbr6psodm" path="res://scripts/domain/word/world_generator.gd" id="1_efca6"]
-[ext_resource type="Script" uid="uid://lpdcoc4mbw52" path="res://scenes/test/free_camera.gd" id="2_58gxn"]
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://scenes/free_camera/camera_rig.tscn" id="2_58gxn"]
 
 [sub_resource type="Environment" id="Environment_efca6"]
+ambient_light_color = Color(0.920995, 0.920995, 0.920995, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_58gxn"]
 
 [node name="TestWorldScene" type="Node3D"]
 script = ExtResource("1_efca6")
@@ -11,8 +14,10 @@ script = ExtResource("1_efca6")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_efca6")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-current = true
-script = ExtResource("2_58gxn")
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.28212)
+mesh = SubResource("SphereMesh_58gxn")
+
+[node name="CameraRig" parent="." instance=ExtResource("2_58gxn")]

@@ -1,9 +1,0 @@
-[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://ul8hgh7as8bi"]
-
-[ext_resource type="Shader" uid="uid://dh5uinxmko03y" path="res://outdated/Assets/Shaders/block_shader.gdshader" id="1_mkbxb"]
-[ext_resource type="Texture2D" uid="uid://daklv0hdrfok1" path="res://outdated/Assets/Textures/stone.png" id="2_rsuj0"]
-
-[resource]
-render_priority = 0
-shader = ExtResource("1_mkbxb")
-shader_parameter/albedo_texture = ExtResource("2_rsuj0")
