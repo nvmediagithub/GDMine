@@ -17,7 +17,8 @@ func register_core_steps() -> void:
 	add_child(ui_bootstrap);
 	steps.append(ui_bootstrap)
 	
-	steps.append(WorldGenerationBootstrap.new())
+	#steps.append(WorldGenerationBootstrap.new())
+	steps.append(ChunkBootstrap.new())
 	steps.append(ModBootstrap.new())
 	
 func run_steps() -> void:

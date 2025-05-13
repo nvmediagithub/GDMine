@@ -9,5 +9,5 @@ func execute() -> void:
 	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	world_generator.noise = noise
 	ServiceLocator.register("WorldGenerator", world_generator)
-	world_generator.generate()
+	#world_generator.generate()
 	ServiceLocator.resolve("LogService").log("World generation completed.")

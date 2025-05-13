@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://drlrtt7bd7545"]
+
+[ext_resource type="PackedScene" uid="uid://bivhb46crhtkt" path="res://scenes/free_camera/camera_rig.tscn" id="1_t5c8d"]
+[ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
+
+[sub_resource type="Environment" id="Environment_efiru"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_efiru"]
+
+[node name="TestChunkManagerLevel" type="Node3D"]
+
+[node name="CameraRig" parent="." instance=ExtResource("1_t5c8d")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_efiru")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.600336, 0.799748, 0, -0.799748, 0.600336, 0, 0, 0)
+
+[node name="ChunkManager" type="Node3D" parent="."]
+script = ExtResource("2_efiru")
+noise = SubResource("FastNoiseLite_efiru")
+metadata/_custom_type_script = "uid://c51eoh7ttnwpo"
