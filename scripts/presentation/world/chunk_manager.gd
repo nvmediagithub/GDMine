@@ -5,7 +5,7 @@ class_name ChunkManager
 @export var render_radius: int = 1  # Радиус в чанках вокруг (0,0)
 @export var chunk_size: int = 32
 @export var cell_size: float = 0.5
-@export var layer_height: float = 0.2
+@export var layer_height: float = 1.0
 @export var slice_count: int = 10
 @export var noise: FastNoiseLite
 

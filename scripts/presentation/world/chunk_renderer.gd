@@ -13,6 +13,7 @@ func render_chunk(
 		var threshold: float = float(i) / slice_count
 		var mesh: ArrayMesh = generator.call(data.field, threshold, i, cell_size, layer_height)
 		var instance: MeshInstance3D = MeshInstance3D.new()
+		var static_body: StaticBody3D = StaticBody3D.new()
 		instance.mesh = mesh
 		instance.translate(
 			Vector3(
@@ -21,4 +22,6 @@ func render_chunk(
 				data.position.y * data.field.size() * cell_size
 			)
 		)
-		add_child(instance)
+		static_body.add_child(instance)
+		instance.create_trimesh_collision()
+		add_child(static_body)
