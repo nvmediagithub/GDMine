@@ -9,6 +9,7 @@ func render_chunk(
 	layer_height: float,
 	slice_count: int
 ) -> void:
+	get_children()[0].queue_free() # Очистить предыдущие меши и коллизии
 	for i: int in range(slice_count):
 		var threshold: float = float(i) / slice_count
 		var mesh: ArrayMesh = generator.call(data.field, threshold, i, cell_size, layer_height)
