@@ -2,8 +2,8 @@
 class_name ChunkData
 
 var position: Vector2i
-var field: Array
+var field: Array  # 3D массив: field[z][y][x]
 
-func set_value(x: int, y: int, value: float) -> void:
-    if x >= 0 and x < field[0].size() and y >= 0 and y < field.size():
-        field[y][x] = value
+func set_value(x: int, y: int, z: int, value: float) -> void:
+    if z >= 0 and z < field.size() and y >= 0 and y < field[z].size() and x >= 0 and x < field[z][y].size():
+        field[z][y][x] = value

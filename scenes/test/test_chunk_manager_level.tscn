@@ -1,11 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://drlrtt7bd7545"]
+[gd_scene load_steps=4 format=3 uid="uid://drlrtt7bd7545"]
 
 [ext_resource type="PackedScene" uid="uid://brndonwdxju3" path="res://scenes/characters/player/player.tscn" id="2_281c6"]
 [ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
 
 [sub_resource type="Environment" id="Environment_efiru"]
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_efiru"]
 
 [node name="TestChunkManagerLevel" type="Node3D"]
 
@@ -17,8 +15,7 @@ transform = Transform3D(1, 0, 0, 0, 0.600336, 0.799748, 0, -0.799748, 0.600336, 
 
 [node name="ChunkManager" type="Node3D" parent="."]
 script = ExtResource("2_efiru")
-noise = SubResource("FastNoiseLite_efiru")
 metadata/_custom_type_script = "uid://c51eoh7ttnwpo"
 
 [node name="Player" parent="." instance=ExtResource("2_281c6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.95887, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 47.0884, 0)

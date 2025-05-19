@@ -6,23 +6,39 @@ func render_chunk(
 	data: ChunkData,
 	generator: Callable,
 	cell_size: float,
+	chunk_size: int,
 	layer_height: float,
 	slice_count: int
 ) -> void:
-	get_children()[0].queue_free() # Очистить предыдущие меши и коллизии
+	# Очистить предыдущие меши и коллизии
+	for child: Node in get_children():
+		child.queue_free()
+
+
 	for i: int in range(slice_count):
 		var threshold: float = float(i) / slice_count
 		var mesh: ArrayMesh = generator.call(data.field, threshold, i, cell_size, layer_height)
-		var instance: MeshInstance3D = MeshInstance3D.new()
+		
+		if mesh == null:
+			continue  # Пропустить, если меш не создан
+
+
 		var static_body: StaticBody3D = StaticBody3D.new()
-		instance.mesh = mesh
-		instance.translate(
+		add_child(static_body)
+		static_body.translate(
 			Vector3(
-				data.position.x * data.field[0].size() * cell_size,
+				data.position.x * chunk_size * cell_size,
 				0,
-				data.position.y * data.field.size() * cell_size
+				data.position.y * chunk_size * cell_size
 			)
 		)
-		static_body.add_child(instance)
-		instance.create_trimesh_collision()
-		add_child(static_body)
+
+		var mesh_instance: MeshInstance3D = MeshInstance3D.new()
+		mesh_instance.mesh = mesh
+		static_body.add_child(mesh_instance)
+
+		var collision_shape: CollisionShape3D = CollisionShape3D.new()
+		var shape: ConcavePolygonShape3D = mesh.create_trimesh_shape()
+		if shape != null:
+			collision_shape.shape = shape
+			static_body.add_child(collision_shape)

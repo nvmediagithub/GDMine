@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://brndonwdxju3"]
+[gd_scene load_steps=6 format=3 uid="uid://brndonwdxju3"]
 
 [ext_resource type="Script" uid="uid://d10ajks5jp00f" path="res://scenes/characters/player/player.gd" id="1_7uws0"]
 
@@ -9,6 +9,8 @@
 [sub_resource type="PrismMesh" id="PrismMesh_7uws0"]
 left_to_right = 0.1
 size = Vector3(0.2, 0.2, 0.2)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_7uws0"]
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_7uws0")
@@ -27,3 +29,20 @@ mesh = SubResource("PrismMesh_7uws0")
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 0.925798, 0.378019, 0, -0.378019, 0.925798, 1.11125, 1.57776, 2.46371)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+custom_minimum_size = Vector2(5, 5)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.5
+offset_top = -2.5
+offset_right = 2.5
+offset_bottom = 2.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_7uws0")
