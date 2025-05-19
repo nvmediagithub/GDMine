@@ -1,3 +1,4 @@
+# scenes\characters\player\player.gd
 extends CharacterBody3D
 
 
