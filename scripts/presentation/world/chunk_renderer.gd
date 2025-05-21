@@ -9,8 +9,6 @@ func _ready() -> void:
 
 var pending_jobs: int = 0
 
-
-
 func _check_done() -> void:
 	if pending_jobs == 0:
 		# Все слои готовы
@@ -43,9 +41,9 @@ func render_chunk(
 		add_child(static_body)
 		static_body.translate(
 			Vector3(
-				data.position.x * chunk_size * cell_size,
+				chunk_pos.x * chunk_size * cell_size,
 				0,
-				data.position.y * chunk_size * cell_size
+				chunk_pos.y * chunk_size * cell_size
 			)
 		)
 
@@ -64,7 +62,6 @@ func clear_layers() -> void:
 		child.queue_free()
 
 func render_layer(
-		layer_index: int, 
 		mesh: ArrayMesh,
 		cell_size: float,
 		chunk_size: int
@@ -72,7 +69,11 @@ func render_layer(
 	var static_body: StaticBody3D = StaticBody3D.new()
 	add_child(static_body)
 	static_body.translate(
-		Vector3(chunk_pos.x * chunk_size * cell_size, 0, chunk_pos.y * chunk_size * cell_size)
+		Vector3(
+			chunk_pos.x * chunk_size * cell_size, 
+			0, 
+			chunk_pos.y * chunk_size * cell_size
+		)
 	)
 
 	var mesh_instance: MeshInstance3D = MeshInstance3D.new()

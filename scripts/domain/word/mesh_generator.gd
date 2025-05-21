@@ -6,9 +6,9 @@ func generate_layer_mesh(field: Array, threshold: float, layer_index: int, cell_
 	var st: SurfaceTool = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	# TODO eto hueta
-	threshold = 0.05
+	threshold = 0.1
 	for y: int in range(field.size() - 1):
-		for x: int in range(field[y].size() - 1):
+		for x: int in range(field[y][layer_index].size() - 1):
 			var a: float = field[y][layer_index][x]
 			var b: float = field[y][layer_index][x + 1]
 			var c: float = field[y + 1][layer_index][x + 1]

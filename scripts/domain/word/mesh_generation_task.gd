@@ -1,4 +1,4 @@
-# scripts/application/world/mesh_generation_task.gd
+# scripts/domain/world/mesh_generation_task.gd
 class_name MeshGenerationTask
 
 var chunk_pos: Vector2i
