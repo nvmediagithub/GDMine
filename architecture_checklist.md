@@ -85,7 +85,8 @@
 | /scripts/domain/   | Бизнес-логика сущностей                |
 | /scripts/application/ | Use-cases и игровой процесс      |
 | /scripts/presentation/ | ViewModels, UI logic            |
-| /infrastructure/   | EventBus, SaveService, Logger, Network|
+| /scripts/infrastructure/   | EventBus, SaveService, Logger, Network|
+| /scenes/             |               |
 | /mods/             | Поддержка загрузки модов              |
 | /ui/               | UI-сцены (HUD, Menu)                  |
 | /assets/           | Спрайты, аудио, шрифты и прочее       |
