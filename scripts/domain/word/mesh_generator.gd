@@ -1,4 +1,4 @@
-# scripts\application\world\mesh_generator.gd
+# scripts\domain\world\mesh_generator.gd
 extends Node
 class_name MeshGenerator
 

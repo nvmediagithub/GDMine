@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bolqs0idk7uao"]
+
+[ext_resource type="Shader" uid="uid://dqbruwsyfq455" path="res://assets/test/test_shader_material.gdshader" id="1_2d380"]
+[ext_resource type="Texture2D" uid="uid://dhel8tuamiafi" path="res://assets/test/test_atlas.png" id="2_ql3a7"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2d380")
+shader_parameter/albedo_atlas = ExtResource("2_ql3a7")
+shader_parameter/uv_scale = Vector2(0, 0)
