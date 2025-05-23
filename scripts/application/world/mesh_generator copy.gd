@@ -1,12 +1,10 @@
 # scripts\domain\world\mesh_generator.gd
 extends Node
-class_name MeshGenerator
+class_name MeshGenerator_old
 
 func generate_layer_mesh(field: Array, threshold: float, layer_index: int, cell_size: float, layer_height: float) -> ArrayMesh:
 	var st: SurfaceTool = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	# TODO eto hueta
-	threshold = 0.1
 	for y: int in range(field.size() - 1):
 		for x: int in range(field[y][layer_index].size() - 1):
 			var a: float = field[y][layer_index][x]

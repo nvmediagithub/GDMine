@@ -43,10 +43,7 @@ func _ready() -> void:
 				renderer.render_chunk(
 					data, 
 					mesh_generator.generate_layer_mesh, 
-					world_settings.cell_size, 
-					world_settings.chunk_size, 
-					world_settings.layer_height, 
-					world_settings.slice_count
+					world_settings
 				)
 
 func _on_mesh_generated(chunk_pos: Vector2i, layer_meshes: Dictionary) -> void:
