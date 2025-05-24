@@ -4,8 +4,9 @@ extends Resource
 class_name BlockType
 
 enum ID {
-    GRASS = 0,
-    DIRT  = 1,
-    STONE = 2,
-    COAL  = 3,
+    EMPTY = 0,
+    GRASS = 1,
+    DIRT  = 2,
+    STONE = 3,
+    COAL  = 4,
 }

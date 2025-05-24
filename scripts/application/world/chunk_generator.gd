@@ -28,10 +28,12 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 					pos.y * chunk_size + z
 				)
                 # решаем тип блока по порогу
-				var id: BlockType.ID = BlockType.ID.GRASS
-				if value > 0.6:
+				var id: BlockType.ID = BlockType.ID.EMPTY
+				if value > 0.3:
+					id = BlockType.ID.GRASS
+				elif value > 0.2:
 					id = BlockType.ID.STONE
-				elif value > 0.3:
+				elif value > 0.1:
 					id = BlockType.ID.DIRT
 				data.set_block(x, y, z, id)
 				# дополнительно: руда

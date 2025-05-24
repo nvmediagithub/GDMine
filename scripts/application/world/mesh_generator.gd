@@ -1,9 +1,14 @@
 extends Node
 class_name MeshGenerator
 
-func generate_layer_mesh(block_ids: Array, layer: int, cell_size: float, layer_height: float) -> Dictionary:
+func generate_layer_mesh(
+	block_ids: Array, 
+	layer: int, 
+	cell_size: float, 
+	layer_height: float
+) -> Dictionary[BlockType.ID, ArrayMesh]:
 	# Словарь { block_type: ArrayMesh }
-	var meshes: Dictionary = {}
+	var meshes: Dictionary[BlockType.ID, ArrayMesh] = {}
 
 	# Шаг 1: собрать все уникальные типы блоков
 	var types: Dictionary = {}
@@ -14,8 +19,8 @@ func generate_layer_mesh(block_ids: Array, layer: int, cell_size: float, layer_h
 				types[block_type] = true
 
 	# Шаг 2: создать SurfaceTool для каждого типа
-	var surface_tools: Dictionary = {}
-	for t: int in types.keys():
+	var surface_tools: Dictionary[BlockType.ID, SurfaceTool] = {}
+	for t: BlockType.ID in types.keys():
 		var st: SurfaceTool= SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		surface_tools[t] = st
@@ -93,10 +98,9 @@ func generate_layer_mesh(block_ids: Array, layer: int, cell_size: float, layer_h
 			surface_tools[block_type].append_from(mesh, 0, Transform3D.IDENTITY)
 
 	# Шаг 4: создать финальные меши
-	for t: int in surface_tools:
+	for t: BlockType.ID in surface_tools:
 		surface_tools[t].generate_normals()
 		meshes[t] = surface_tools[t].commit()
-
 	return meshes
 
 
