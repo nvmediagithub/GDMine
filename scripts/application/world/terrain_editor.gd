@@ -52,7 +52,7 @@ func remove_voxel(world_pos: Vector3, radius: float = 1.0) -> void:
 						if chunk == null:
 							continue
 
-						chunk.set_value(local_x, y, local_z, -1.0)
+						chunk.set_block(local_x, y, local_z, 0)
 						chunk.dirty_layers[y] = true
 						chunk_manager.dirty_chunks[chunk_pos] = chunk
 

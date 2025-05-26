@@ -54,7 +54,8 @@ func _on_mesh_generated(chunk_pos: Vector2i, layer_meshes: Dictionary) -> void:
 			renderer.render_layer(
 				layer_meshes[i], 
 				world_settings.cell_size, 
-				world_settings.chunk_size
+				world_settings.chunk_size,
+				world_settings
 			)
 
 func find_renderer_for_chunk(chunk_pos: Vector2i) -> ChunkRenderer:

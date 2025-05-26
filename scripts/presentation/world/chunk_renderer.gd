@@ -10,6 +10,9 @@ var type_colors: Dictionary[BlockType.ID, Color] = {
 	BlockType.ID.STONE: Color.GRAY,
 }
 
+func clear_layers() -> void:
+	for child: Node in get_children():
+		child.queue_free()
 
 func render_chunk(data: ChunkData, mesh_gen: Callable, ws: WorldSettings) -> void:
 	for c: Node in get_children(): c.queue_free()
@@ -38,3 +41,31 @@ func render_chunk(data: ChunkData, mesh_gen: Callable, ws: WorldSettings) -> voi
 				)
 			)
 			add_child(body)
+
+func render_layer(
+		layer_meshes: Dictionary,
+		cell_size: float,
+		chunk_size: int,
+		ws: WorldSettings
+	) -> void:
+	for t: BlockType.ID in layer_meshes.keys():
+		var mat: StandardMaterial3D = StandardMaterial3D.new()
+		mat.albedo_color = type_colors[t]
+		var mi: MeshInstance3D = MeshInstance3D.new()
+		mi.mesh = layer_meshes[t]
+		mi.material_override = mat
+		# коллизия
+		var body: StaticBody3D = StaticBody3D.new()
+		body.add_child(mi)
+		var cs: CollisionShape3D = CollisionShape3D.new()
+		cs.shape = layer_meshes[t].create_trimesh_shape()
+		body.add_child(cs)
+		body.translate(
+			Vector3(
+				chunk_pos.x*ws.chunk_size*ws.cell_size, 
+				0, 
+				chunk_pos.y*ws.chunk_size*ws.cell_size
+			)
+		)
+		add_child(body)
+

@@ -33,13 +33,20 @@ func _run(_userdata: Variant = null) -> void:
 		task_mutex.unlock()
 
 		var result: Dictionary = {}
+
 		for i: int in range(task.slice_count):
-			if not task.chunk_data.dirty_layers[i]:
+			if not task.chunk_data.dirty_layers.get(i, false):
 				continue
-			var threshold: float = 0.5
-			var mesh: ArrayMesh = task.generator.call(task.chunk_data.field, threshold, i, task.cell_size, task.layer_height)
-			if mesh:
-				result[i] = mesh
+			# теперь передаем block_ids вместо field, и убираем threshold
+			var meshes: Dictionary[BlockType.ID, ArrayMesh] = task.generator.call(
+				task.chunk_data.block_ids,
+				i,
+				task.cell_size,
+				task.layer_height
+			)
+			if meshes:
+				result[i] = meshes
+
 		call_deferred("emit_signal", "mesh_generated", task.chunk_pos, result)
 
 
