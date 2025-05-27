@@ -68,4 +68,3 @@ func render_layer(
 			)
 		)
 		add_child(body)
-
