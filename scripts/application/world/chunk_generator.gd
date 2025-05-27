@@ -27,7 +27,7 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 					y,
 					pos.y * chunk_size + z
 				)
-                # решаем тип блока по порогу
+				# решаем тип блока по порогу
 				var id: BlockType.ID = BlockType.ID.EMPTY
 				if value > 0.3:
 					id = BlockType.ID.GRASS
