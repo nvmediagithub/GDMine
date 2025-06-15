@@ -9,7 +9,7 @@ var dirty_chunks: Dictionary = {}
 var chunks: Dictionary = {}
 var mesh_worker: MeshGenerationWorker
 var mesh_generator: MeshGenerator
-var render_radius: int = 1
+var render_radius: int = 3
 
 func _ready() -> void:
 	# 1. TODO возможно стоит перенести в DI или ServiceLocator
@@ -19,6 +19,7 @@ func _ready() -> void:
 	mesh_worker.start()
 	mesh_worker.connect("mesh_generated", _on_mesh_generated)
 
+	# TODO возможно стоит перенести в DI или ServiceLocator
 	var terrain_editor: TerrainEditor = TerrainEditor.new()
 	terrain_editor.chunk_manager = self
 	terrain_editor.mesh_generator = mesh_generator
@@ -26,9 +27,10 @@ func _ready() -> void:
 	ServiceLocator.register("TerrainEditor", terrain_editor)
 
 	# 2. Init generator
-	var generator: ChunkGenerator = ChunkGenerator.new()
+	var generator: ChunkDataGenerator = ChunkDataGenerator.new()
 	generator.noise = FastNoiseLite.new()
 	generator.noise.frequency = 0.02
+	# generator.noise.normalize = true
 
 	# 3. Init world
 	for y: int in range(-render_radius, render_radius + 1):

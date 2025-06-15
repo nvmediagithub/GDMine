@@ -19,9 +19,10 @@ func render_chunk(data: ChunkData, mesh_gen: Callable, ws: WorldSettings) -> voi
 	# для каждого слоя (y)
 	for layer: int in range(ws.slice_count):
 		if not data.dirty_layers[layer]: continue
-		var layer_meshes: Dictionary[BlockType.ID, ArrayMesh] = mesh_gen.call(data.block_ids, layer, ws.cell_size, ws.layer_height)
-		
+		var layer_meshes: Dictionary[BlockType.ID, ArrayMesh] = mesh_gen.call(data.weight_fields, data.block_ids, layer, ws.layer_height)
 		for t: BlockType.ID in layer_meshes.keys():
+			if t == BlockType.ID.EMPTY:
+				continue
 			var mat: StandardMaterial3D = StandardMaterial3D.new()
 			mat.albedo_color = type_colors[t]
 			var mi: MeshInstance3D = MeshInstance3D.new()
