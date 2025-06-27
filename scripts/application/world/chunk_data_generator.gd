@@ -39,11 +39,19 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 					y,
 					pos.x * chunk_size + x,
 				) # Возвращает значение от -1 до 1
-				weight_row[x] = (weight_row[x] + 1.0) * 0.25 # сжимаем до диапазона (0.0, 0.5)
-				if weight_row[x] > 0.3:
+				weight_row[x] = (weight_row[x] + 1.0) / 2
+				if weight_row[x] > 0.7:
 					block_row[x] = BlockType.ID.DIRT
+				elif weight_row[x] > 0.6:
+					block_row[x] = BlockType.ID.GRASS
+				elif weight_row[x] > 0.4:
+					block_row[x] = BlockType.ID.STONE
+				elif weight_row[x] > 0.2:
+					block_row[x] = BlockType.ID.COAL
 				else:
 					block_row[x] = BlockType.ID.EMPTY
+
+					
 			weight_slice[z] = weight_row
 			block_slice[z] = block_row
 		weight_fields[y] = weight_slice
