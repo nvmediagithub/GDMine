@@ -140,38 +140,6 @@ func interp(p1: Vector2, p2: Vector2, w1: float, w2: float) -> Vector2:
 		p1[1] + t * (p2[1] - p1[1])
 	)
 
-func vertex_val(pos: Vector2, a: float, b: float, c: float, d: float) -> float:
-	if pos == Vector2(0, 0): return a
-	if pos == Vector2(1, 0): return b
-	if pos == Vector2(1, 1): return c
-	if pos == Vector2(0, 1): return d
-	return 0.0
-
-func extrude_polygon(polygon: Array[Vector2], height: float, y_off: float) -> ArrayMesh:
-	var st: SurfaceTool = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var top: Array[Vector3] = []
-	var bot: Array[Vector3] = []
-	for pt: Vector2 in polygon:
-		top.append(Vector3(pt.x, y_off,     pt.y))
-		bot.append(Vector3(pt.x, y_off - height, pt.y))
-	# верх
-	for i: int in range(1, top.size() - 1):
-		st.add_vertex(top[0]); st.add_vertex(top[i]); st.add_vertex(top[i+1])
-	# низ
-	for i: int in range(1, bot.size() - 1):
-		st.add_vertex(bot[0]); st.add_vertex(bot[i+1]); st.add_vertex(bot[i])
-	# стороны
-	for i: int in range(polygon.size()):
-		var ni: int = (i + 1) % polygon.size()
-		st.add_vertex(top[i])
-		st.add_vertex(bot[i])
-		st.add_vertex(bot[ni])
-		st.add_vertex(top[i])
-		st.add_vertex(bot[ni])
-		st.add_vertex(top[ni])
-	return st.commit()
-
 func sequential_map(blocks: Array[BlockType.ID]) -> Array[int]:
 	"""
 	Преобразует список blocks, заменяя каждый элемент на код,
@@ -190,9 +158,6 @@ func sequential_map(blocks: Array[BlockType.ID]) -> Array[int]:
 	return result
 
 var MULTI_TABLE: Dictionary = build_multitype_table()
-
-# # TODO возможно стоит перенести в ServiceLocator
-# @onready var world_settings: WorldSettings = WorldSettings.new()
 
 func generate_layer_mesh(
 		weight_fields: Array, # 3D массив: weight_fields[layer_num][z][x] значения от 0.0 до 0.5
@@ -261,14 +226,62 @@ func generate_layer_mesh(
 							var a: int = EDGES[idx][0]
 							var b: int = EDGES[idx][1]
 							pts.append(interp(POINTS[a], POINTS[b], weights[a], weights[b]))
-					for p: Vector2 in pts:
-						surface_tools[base_id].add_vertex(
+
+					var top: Array[Vector3] = []
+					var bot: Array[Vector3] = []
+					for pt: Vector2 in pts:
+						top.append(
 							Vector3(
-								x + p.x, 
+								x + pt.x, 
 								layer * layer_height, 
-								z + p.y
-							) * 0.2 # TODO это размер ячейки, его нужно брать из конфига
+								z + pt.y
+							) * 1 # TODO это размер ячейки, его нужно брать из конфига
 						)
+					for pt: Vector2 in pts:
+						bot.append(
+							Vector3(
+								x + pt.x, 
+								layer * layer_height - layer_height, 
+								z + pt.y
+							) * 1 # TODO это размер ячейки, его нужно брать из конфига
+						)
+
+					# верх
+					surface_tools[base_id].add_vertex(top[0])
+					surface_tools[base_id].add_vertex(top[1])
+					surface_tools[base_id].add_vertex(top[2])
+					# низ
+					surface_tools[base_id].add_vertex(bot[0])
+					surface_tools[base_id].add_vertex(bot[2])
+					surface_tools[base_id].add_vertex(bot[1])
+					# стороны
+					# 1 ok
+					surface_tools[base_id].add_vertex(bot[2])
+					surface_tools[base_id].add_vertex(top[2])
+					surface_tools[base_id].add_vertex(top[1])
+					# 2 ok
+					surface_tools[base_id].add_vertex(bot[2])
+					surface_tools[base_id].add_vertex(top[1])
+					surface_tools[base_id].add_vertex(bot[1])
+					# 3 ok
+					surface_tools[base_id].add_vertex(top[0])
+					surface_tools[base_id].add_vertex(bot[1])
+					surface_tools[base_id].add_vertex(top[1])
+					# 4 ok
+					surface_tools[base_id].add_vertex(bot[1])
+					surface_tools[base_id].add_vertex(top[0])
+					surface_tools[base_id].add_vertex(bot[0])
+					# 5 ok
+					surface_tools[base_id].add_vertex(top[2])
+					surface_tools[base_id].add_vertex(bot[0])
+					surface_tools[base_id].add_vertex(top[0])
+					# 6 ok
+					surface_tools[base_id].add_vertex(bot[0])
+					surface_tools[base_id].add_vertex(top[2])
+					surface_tools[base_id].add_vertex(bot[2])
+
+
+
 			
 	for block_id: BlockType.ID in surface_tools.keys():
 		var st: SurfaceTool = surface_tools[block_id]

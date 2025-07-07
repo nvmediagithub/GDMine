@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://d10ajks5jp00f" path="res://scenes/characters/player/player.gd" id="1_7uws0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bcx1r"]
+height = 1.4898
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7uws0"]
 
@@ -18,14 +19,17 @@ size = Vector3(0.2, 0.2, 0.2)
 script = ExtResource("1_7uws0")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.770477, 0)
 shape = SubResource("CapsuleShape3D_bcx1r")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("CapsuleMesh_7uws0")
 surface_material_override/0 = SubResource("StandardMaterial3D_7uws0")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 1.2, 0)
+visible = false
 mesh = SubResource("PrismMesh_7uws0")
 
 [node name="Head" type="Node3D" parent="."]

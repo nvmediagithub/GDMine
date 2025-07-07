@@ -42,14 +42,19 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 				weight_row[x] = (weight_row[x] + 1.0) / 2
 				if weight_row[x] > 0.7:
 					block_row[x] = BlockType.ID.DIRT
-				elif weight_row[x] > 0.6:
-					block_row[x] = BlockType.ID.GRASS
-				elif weight_row[x] > 0.4:
-					block_row[x] = BlockType.ID.STONE
-				elif weight_row[x] > 0.2:
-					block_row[x] = BlockType.ID.COAL
+					weight_row[x] = randf_range(0, 1)
+				# elif weight_row[x] > 0.6:
+				# 	block_row[x] = BlockType.ID.GRASS
+				# 	weight_row[x] = randf_range(0, 1)
+				# elif weight_row[x] > 0.4:
+				# 	block_row[x] = BlockType.ID.STONE
+				# 	weight_row[x] = randf_range(0, 1)
+				# elif weight_row[x] > 0.2:
+				# 	block_row[x] = BlockType.ID.COAL
+				# 	weight_row[x] = randf_range(0, 1)
 				else:
 					block_row[x] = BlockType.ID.EMPTY
+					weight_row[x] *= 1.0
 
 					
 			weight_slice[z] = weight_row
