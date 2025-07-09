@@ -23,6 +23,7 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 
 	weight_fields.resize(slice_count)
 	block_ids.resize(slice_count)
+
 	for y: int in range(slice_count):
 		var weight_slice: Array[Array] = []
 		var block_slice: Array[Array] = []
@@ -34,120 +35,80 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 			weight_row.resize(chunk_size + 1)
 			block_row.resize(chunk_size + 1)
 			for x: int in range(chunk_size + 1):
-				weight_row[x] = noise.get_noise_3d(
-					pos.y * chunk_size + z,
-					y,
-					pos.x * chunk_size + x,
-				) # Возвращает значение от -1 до 1
-				weight_row[x] = (weight_row[x] + 1.0) / 2
-				if weight_row[x] > 0.7:
-					block_row[x] = BlockType.ID.DIRT
-					weight_row[x] = randf_range(0, 1)
-				# elif weight_row[x] > 0.6:
-				# 	block_row[x] = BlockType.ID.GRASS
-				# 	weight_row[x] = randf_range(0, 1)
-				# elif weight_row[x] > 0.4:
-				# 	block_row[x] = BlockType.ID.STONE
-				# 	weight_row[x] = randf_range(0, 1)
-				# elif weight_row[x] > 0.2:
-				# 	block_row[x] = BlockType.ID.COAL
-				# 	weight_row[x] = randf_range(0, 1)
-				else:
-					block_row[x] = BlockType.ID.EMPTY
-					weight_row[x] *= 1.0
-
-					
+				block_row[x] = BlockType.ID.EMPTY
+				weight_row[x] = 1.0
 			weight_slice[z] = weight_row
 			block_slice[z] = block_row
 		weight_fields[y] = weight_slice
 		block_ids[y] = block_slice
-		data.dirty_layers[y] = true
+		data.dirty_layers[y] = false
 	data.weight_fields = weight_fields
 	data.block_ids = block_ids
 	
-	# var dirt_field: Array[Array] = []
-	# dirt_field.resize(slice_count)
-	# for y: int in range(slice_count):
-	# 	var material_layer: Array[Array] = []
-	# 	material_layer.resize(chunk_size + 1)
-	# 	for z: int in range(chunk_size + 1):
-	# 		var row: Array[float] = []
-	# 		row.resize(chunk_size + 1)
-	# 		for x: int in range(chunk_size + 1):
-	# 			row[x] = noise.get_noise_3d(
-	# 				pos.y * chunk_size + z,
-	# 				y,
-	# 				pos.x * chunk_size + x,
-	# 			) # Возвращает значение от -1 до 1
-	# 			# row[x] = (row[x] + 1.0) * 0.5
-	# 		material_layer[z] = row
-	# 	dirt_field[y] = material_layer
-	# 	data.dirty_layers[y] = true
-	# data.field[BlockType.ID.DIRT] = dirt_field
+	# Нижний слой бедрока
+	data.dirty_layers[0] = true
+	for z: int in range(chunk_size + 1):
+		for x: int in range(chunk_size + 1):
+			block_ids[0][z][x] = BlockType.ID.BEDROCK
+			weight_fields[0][z][x] = 1.0
+
+	# Нижний слой
+	for y: int in range(1, min(5, slice_count)):
+		for z: int in range(chunk_size + 1):
+			for x: int in range(chunk_size + 1):
+				var weight: float = noise.get_noise_2d(
+					pos.y * chunk_size + z,
+					pos.x * chunk_size + x,
+				) + 1.0 # Возвращает значение от -1 до 1
+				if weight > 0.5 + y * 0.25:
+					block_ids[y][z][x] = BlockType.ID.BEDROCK
+				else:
+					block_ids[y][z][x] = BlockType.ID.STONE
+				weight_fields[y][z][x] = weight
+		data.dirty_layers[y] = true
+
+	# Нижние пещеры
+	for y: int in range(5, min(40, slice_count)):
+		for z: int in range(chunk_size + 1):
+			for x: int in range(chunk_size + 1):
+				var weight_1: float = noise.get_noise_2d(
+					pos.y * chunk_size + z,
+					pos.x * chunk_size + x,
+				) + 1.0 # Возвращает значение от -1 до 1
+				
+				var weight_2: float = noise.get_noise_3d(
+					pos.y * chunk_size + z,
+					y,
+					pos.x * chunk_size + x,
+				) # Возвращает значение от -1 до 1
+				if weight_2 > 0.25:
+					if weight_1 > y * 0.10:
+						block_ids[y][z][x] = BlockType.ID.STONE
+					else:
+						block_ids[y][z][x] = BlockType.ID.EMPTY
+				elif weight_2 < -0.5:
+					block_ids[y][z][x] = BlockType.ID.COAL
+					weight_fields[y][z][x] = weight_1
+				else:
+					block_ids[y][z][x] = BlockType.ID.STONE
+					weight_fields[y][z][x] = weight_1
+		data.dirty_layers[y] = true
 
 
-	# var grass_field: Array[Array] = []
-	# grass_field.resize(slice_count)
-	# for y: int in range(slice_count):
-	# 	var material_layer: Array[Array] = []
-	# 	material_layer.resize(chunk_size + 1)
-	# 	for z: int in range(chunk_size + 1):
-	# 		var row: Array[float] = []
-	# 		row.resize(chunk_size + 1)
-	# 		for x: int in range(chunk_size + 1):
-	# 			row[x] = data.field[BlockType.ID.DIRT][y][z][x]
-	# 			# data.field[BlockType.ID.DIRT][y][z][x] *= 0.8
-	# 			# row[x] -= data.field[BlockType.ID.DIRT][y][z][x]
-	# 			if y < slice_count - 1:
-	# 				if data.field[BlockType.ID.DIRT][y + 1][z][x] <= 0.0:
-	# 					if data.field[BlockType.ID.DIRT][y][z][x] >= 0:
-	# 						data.field[BlockType.ID.DIRT][y][z][x] *= -1.0
-	# 				else:
-	# 					if row[x] >= 0:
-	# 						row[x] *= -1.0
-	# 			else:
-	# 				if data.field[BlockType.ID.DIRT][y][z][x] >= 0:
-	# 					data.field[BlockType.ID.DIRT][y][z][x] *= -1.0
-
-	# 		material_layer[z] = row
-	# 	grass_field[y] = material_layer
-	# 	data.dirty_layers[y] = true
-	# data.field[BlockType.ID.GRASS] = grass_field
+	# Верхние горы
+	for y: int in range(40, min(60, slice_count)):
+		for z: int in range(chunk_size + 1):
+			for x: int in range(chunk_size + 1):
+				var weight_1: float = noise.get_noise_2d(
+					pos.y * chunk_size + z,
+					pos.x * chunk_size + x,
+				) + 1.0 # Возвращает значение от -1 до 1
+				if weight_1 > y * 0.05:
+					block_ids[y][z][x] = BlockType.ID.STONE
+					weight_fields[y][z][x] = weight_1
+				else:
+					block_ids[y][z][x] = BlockType.ID.EMPTY
+		data.dirty_layers[y] = true
 
 
 	return data
-
-
-
-# func generate_chunk(pos: Vector2i) -> ChunkData:
-# 	# инициализация массивов: size_x = chunk_size+1, size_y = slice_count, size_z = chunk_size+1
-# 	var chunk_size: int = world_settings.chunk_size
-# 	var slice_count: int = world_settings.slice_count
-
-# 	var data: ChunkData = ChunkData.new(
-# 		slice_count, 
-# 		chunk_size + 1
-# 	)
-# 	data.position = pos
-
-# 	for z: int in range(chunk_size + 1):
-# 		for y: int in range(slice_count):
-# 			for x: int in range(chunk_size + 1):
-# 				var value: float = noise.get_noise_3d(
-# 					pos.x * chunk_size + x,
-# 					y,
-# 					pos.y * chunk_size + z
-# 				)
-# 				# решаем тип блока по порогу
-# 				var id: BlockType.ID = BlockType.ID.EMPTY
-# 				if value > 0.3:
-# 					id = BlockType.ID.GRASS
-# 				elif value > 0.2:
-# 					id = BlockType.ID.STONE
-# 				elif value > 0.1:
-# 					id = BlockType.ID.DIRT
-# 				data.set_block(x, y, z, id)
-# 				# дополнительно: руда
-# 				if id == BlockType.ID.STONE and noise.get_noise_3d(x, y, z) > 0.8:
-# 					data.set_block(x, y, z, BlockType.ID.COAL)
-# 	return data

@@ -8,6 +8,7 @@ var type_colors: Dictionary[BlockType.ID, Color] = {
 	BlockType.ID.DIRT: Color.SANDY_BROWN,
 	BlockType.ID.COAL: Color.BLACK,
 	BlockType.ID.STONE: Color.GRAY,
+	BlockType.ID.BEDROCK: Color.DARK_GRAY,
 }
 
 func clear_layers() -> void:
@@ -19,12 +20,18 @@ func render_chunk(data: ChunkData, mesh_gen: Callable, ws: WorldSettings) -> voi
 	# для каждого слоя (y)
 	for layer: int in range(ws.slice_count):
 		if not data.dirty_layers[layer]: continue
-		var layer_meshes: Dictionary[BlockType.ID, ArrayMesh] = mesh_gen.call(data.weight_fields, data.block_ids, layer, ws.layer_height)
+		var layer_meshes: Dictionary[BlockType.ID, ArrayMesh] = mesh_gen.call(
+			data.weight_fields, 
+			data.block_ids, 
+			layer, 
+			ws.layer_height
+		)
 		for t: BlockType.ID in layer_meshes.keys():
 			if t == BlockType.ID.EMPTY:
 				continue
 			var mat: StandardMaterial3D = StandardMaterial3D.new()
 			mat.albedo_color = type_colors[t]
+			# var mat: ShaderMaterial = preload("res://assets/prototyping/S_MAT/new_shader_material.tres")
 			var mi: MeshInstance3D = MeshInstance3D.new()
 			mi.mesh = layer_meshes[t]
 			mi.material_override = mat
@@ -50,8 +57,9 @@ func render_layer(
 		ws: WorldSettings
 	) -> void:
 	for t: BlockType.ID in layer_meshes.keys():
-		var mat: StandardMaterial3D = StandardMaterial3D.new()
-		mat.albedo_color = type_colors[t]
+		# var mat: StandardMaterial3D = StandardMaterial3D.new()
+		# mat.albedo_color = type_colors[t]
+		var mat: ShaderMaterial = preload("res://assets/prototyping/S_MAT/new_shader_material.tres")
 		var mi: MeshInstance3D = MeshInstance3D.new()
 		mi.mesh = layer_meshes[t]
 		mi.material_override = mat

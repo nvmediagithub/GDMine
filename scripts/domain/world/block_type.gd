@@ -9,4 +9,5 @@ enum ID {
     DIRT  = 2,
     STONE = 3,
     COAL  = 4,
+    BEDROCK = 5,
 }

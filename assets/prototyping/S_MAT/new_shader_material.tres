@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dhafvifx0e44e"]
+
+[ext_resource type="Shader" uid="uid://ddvejj1lggsr2" path="res://assets/prototyping/S_MAT/new_shader_material.gdshader" id="1_2omgh"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2omgh")
