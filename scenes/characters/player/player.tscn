@@ -6,8 +6,9 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bcx1r"]
 height = 1.0
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_7uws0"]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_t61fv"]
 material = ExtResource("2_t61fv")
+radius = 0.25
 height = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7uws0"]
@@ -28,7 +29,7 @@ shape = SubResource("CapsuleShape3D_bcx1r")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.766941, 0)
-mesh = SubResource("CapsuleMesh_7uws0")
+mesh = SubResource("CapsuleMesh_t61fv")
 surface_material_override/0 = SubResource("StandardMaterial3D_7uws0")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]

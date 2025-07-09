@@ -248,19 +248,19 @@ func generate_layer_mesh(
 
 					# верхняя грань (flat shading верх)
 					var st: SurfaceTool = surface_tools[base_id]
+					var v0_2d: Vector2 = pts[0]; var v1_2d: Vector2 = pts[1]; var v2_2d: Vector2 = pts[2]
 					var v0: Vector3 = top[0]; var v1: Vector3 = top[1]; var v2: Vector3 = top[2]
 					var n: Vector3 = -(v1 - v0).cross(v2 - v0).normalized()
-					st.set_normal(n); st.add_vertex(v0)
-					st.set_normal(n); st.add_vertex(v1)
-					st.set_normal(n); st.add_vertex(v2)
+					st.set_uv(v0_2d); st.set_normal(n); st.add_vertex(v0)
+					st.set_uv(v1_2d); st.set_normal(n); st.add_vertex(v1)
+					st.set_uv(v2_2d); st.set_normal(n); st.add_vertex(v2)
 					
 					# нижняя грань (перевёрнутая ориентация)
-				
 					v0 = bot[0]; v1 = bot[2]; v2 = bot[1]
 					n = -(v1 - v0).cross(v2 - v0).normalized()
-					st.set_normal(n); st.add_vertex(v0)
-					st.set_normal(n); st.add_vertex(v1)
-					st.set_normal(n); st.add_vertex(v2)
+					st.set_uv(v0_2d); st.set_normal(n); st.add_vertex(v0)
+					st.set_uv(v1_2d); st.set_normal(n); st.add_vertex(v1)
+					st.set_uv(v2_2d); st.set_normal(n); st.add_vertex(v2)
 					
 					# стороны — 6 треугольников, каждый с явным N
 					var side_tris: Array = [
@@ -273,46 +273,10 @@ func generate_layer_mesh(
 					]
 					for side_tri: Array in side_tris:
 						v0 = side_tri[0]; v1 = side_tri[1]; v2 = side_tri[2]
-						n = (v1 - v0).cross(v2 - v0).normalized()
-						st.set_normal(n); st.add_vertex(v0)
-						st.set_normal(n); st.add_vertex(v1)
-						st.set_normal(n); st.add_vertex(v2)
-						
-					# # верх
-					# surface_tools[base_id].add_vertex(top[0])
-					# surface_tools[base_id].add_vertex(top[1])
-					# surface_tools[base_id].add_vertex(top[2])
-					# # низ
-					# surface_tools[base_id].add_vertex(bot[0])
-					# surface_tools[base_id].add_vertex(bot[2])
-					# surface_tools[base_id].add_vertex(bot[1])
-					# # стороны
-					# # 1 ok
-					# surface_tools[base_id].add_vertex(bot[2])
-					# surface_tools[base_id].add_vertex(top[2])
-					# surface_tools[base_id].add_vertex(top[1])
-					# # 2 ok
-					# surface_tools[base_id].add_vertex(bot[2])
-					# surface_tools[base_id].add_vertex(top[1])
-					# surface_tools[base_id].add_vertex(bot[1])
-					# # 3 ok
-					# surface_tools[base_id].add_vertex(top[0])
-					# surface_tools[base_id].add_vertex(bot[1])
-					# surface_tools[base_id].add_vertex(top[1])
-					# # 4 ok
-					# surface_tools[base_id].add_vertex(bot[1])
-					# surface_tools[base_id].add_vertex(top[0])
-					# surface_tools[base_id].add_vertex(bot[0])
-					# # 5 ok
-					# surface_tools[base_id].add_vertex(top[2])
-					# surface_tools[base_id].add_vertex(bot[0])
-					# surface_tools[base_id].add_vertex(top[0])
-					# # 6 ok
-					# surface_tools[base_id].add_vertex(bot[0])
-					# surface_tools[base_id].add_vertex(top[2])
-					# surface_tools[base_id].add_vertex(bot[2])
-
-
+						n = -(v1 - v0).cross(v2 - v0).normalized()
+						st.set_uv(v0_2d); st.set_normal(n); st.add_vertex(v0)
+						st.set_uv(v1_2d); st.set_normal(n); st.add_vertex(v1)
+						st.set_uv(v2_2d); st.set_normal(n); st.add_vertex(v2)
 
 			
 	for block_id: BlockType.ID in surface_tools.keys():

@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://bsutxlvx5hnv4"]
+
+[ext_resource type="Shader" uid="uid://b3pqll0c2f5vc" path="res://assets/prototyping/S_MAT/test_pbr_material.gdshader" id="1_ljtxs"]
+[ext_resource type="Texture2D" uid="uid://ddqovb1v7cosu" path="res://assets/prototyping/T_CobbleStone/5/5_diffuseOriginal.bmp" id="2_1vn24"]
+[ext_resource type="Texture2D" uid="uid://b8rge04io2ayd" path="res://assets/prototyping/T_CobbleStone/5/5_metallic.bmp" id="3_8gmt4"]
+[ext_resource type="Texture2D" uid="uid://djvtwcrqpbcgb" path="res://assets/prototyping/T_CobbleStone/5/5_normal.bmp" id="4_bwwua"]
+[ext_resource type="Texture2D" uid="uid://dady2t032cgxl" path="res://assets/prototyping/T_CobbleStone/5/5_smoothness.bmp" id="5_8gmt4"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_ljtxs")
+shader_parameter/albedo_tex = ExtResource("2_1vn24")
+shader_parameter/normal_tex = ExtResource("4_bwwua")
+shader_parameter/roughness_tex = ExtResource("5_8gmt4")
+shader_parameter/metallic_tex = ExtResource("3_8gmt4")
+shader_parameter/roughness_scalar = 1.0
+shader_parameter/metallic_scalar = 1.0

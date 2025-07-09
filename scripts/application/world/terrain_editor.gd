@@ -7,6 +7,9 @@ var mesh_generator: MeshGenerator
 var world_settings: WorldSettings = WorldSettings.new()
 
 func remove_voxel(world_pos: Vector3, radius: float = 1.0) -> void:
+	# TODO не работает
+	return
+
 	var chunk_size: int = world_settings.chunk_size
 	var cell_size: float = world_settings.cell_size
 	var layer_height: float = world_settings.layer_height

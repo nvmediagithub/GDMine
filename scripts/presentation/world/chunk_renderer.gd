@@ -29,9 +29,9 @@ func render_chunk(data: ChunkData, mesh_gen: Callable, ws: WorldSettings) -> voi
 		for t: BlockType.ID in layer_meshes.keys():
 			if t == BlockType.ID.EMPTY:
 				continue
-			var mat: StandardMaterial3D = StandardMaterial3D.new()
-			mat.albedo_color = type_colors[t]
-			# var mat: ShaderMaterial = preload("res://assets/prototyping/S_MAT/new_shader_material.tres")
+			# var mat: StandardMaterial3D = StandardMaterial3D.new()
+			# mat.albedo_color = type_colors[t]
+			var mat: StandardMaterial3D = preload("res://assets/prototyping/S_MAT/new_standard_material_3d.tres")
 			var mi: MeshInstance3D = MeshInstance3D.new()
 			mi.mesh = layer_meshes[t]
 			mi.material_override = mat

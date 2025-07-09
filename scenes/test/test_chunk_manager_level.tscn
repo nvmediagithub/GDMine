@@ -4,6 +4,14 @@
 [ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
 
 [sub_resource type="Environment" id="Environment_efiru"]
+background_mode = 1
+background_color = Color(0.467538, 0.733586, 0.780965, 1)
+ambient_light_color = Color(0.947836, 0.837314, 0.700049, 1)
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.672767, 0.523374, 0.255583, 1)
+fog_density = 1.0
+fog_depth_curve = 0.34151
 
 [node name="TestChunkManagerLevel" type="Node3D"]
 
