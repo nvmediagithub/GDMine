@@ -9,7 +9,7 @@ var dirty_chunks: Dictionary = {}
 var chunks: Dictionary = {}
 var mesh_worker: MeshGenerationWorker
 var mesh_generator: MeshGenerator
-var render_radius: int = 2
+var render_radius: int = 1
 
 func _ready() -> void:
 	# 1. TODO возможно стоит перенести в DI или ServiceLocator

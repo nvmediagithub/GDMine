@@ -1,29 +1,39 @@
-[gd_scene load_steps=4 format=3 uid="uid://drlrtt7bd7545"]
+[gd_scene load_steps=7 format=3 uid="uid://drlrtt7bd7545"]
 
+[ext_resource type="Script" uid="uid://chycdl2nxtpwh" path="res://scenes/test/test_chunk_manager_level.gd" id="1_281c6"]
 [ext_resource type="PackedScene" uid="uid://brndonwdxju3" path="res://scenes/characters/player/player.tscn" id="2_281c6"]
 [ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_efiru"]
+sky_top_color = Color(0.828022, 0.859671, 0.903907, 1)
+sky_horizon_color = Color(0.830329, 0.257196, 0.401202, 1)
+
+[sub_resource type="Sky" id="Sky_281c6"]
+sky_material = SubResource("ProceduralSkyMaterial_efiru")
+
 [sub_resource type="Environment" id="Environment_efiru"]
-background_mode = 1
+background_mode = 2
 background_color = Color(0.467538, 0.733586, 0.780965, 1)
-ambient_light_color = Color(0.947836, 0.837314, 0.700049, 1)
-fog_enabled = true
-fog_mode = 1
-fog_light_color = Color(0.672767, 0.523374, 0.255583, 1)
-fog_density = 1.0
-fog_depth_curve = 0.34151
+sky = SubResource("Sky_281c6")
+ambient_light_color = Color(0.823688, 0.900071, 0.948963, 1)
+fog_sky_affect = 0.3
+fog_height_density = 5.0
+volumetric_fog_sky_affect = 0.02
 
 [node name="TestChunkManagerLevel" type="Node3D"]
+script = ExtResource("1_281c6")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_efiru")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.600336, 0.799748, 0, -0.799748, 0.600336, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_mode = 0
 
 [node name="ChunkManager" type="Node3D" parent="."]
 script = ExtResource("2_efiru")
 metadata/_custom_type_script = "uid://c51eoh7ttnwpo"
 
 [node name="Player" parent="." instance=ExtResource("2_281c6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 47.0884, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 34.0467, 0)

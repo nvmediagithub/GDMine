@@ -4,14 +4,9 @@
 [ext_resource type="Material" uid="uid://dhafvifx0e44e" path="res://assets/prototyping/S_MAT/new_shader_material.tres" id="2_t61fv"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bcx1r"]
-height = 1.0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_t61fv"]
 material = ExtResource("2_t61fv")
-radius = 0.25
-height = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7uws0"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_7uws0"]
 material = ExtResource("2_t61fv")
@@ -19,6 +14,8 @@ left_to_right = 0.1
 size = Vector3(0.2, 0.2, 0.2)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_7uws0"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_t61fv"]
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_7uws0")
@@ -30,7 +27,6 @@ shape = SubResource("CapsuleShape3D_bcx1r")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.766941, 0)
 mesh = SubResource("CapsuleMesh_t61fv")
-surface_material_override/0 = SubResource("StandardMaterial3D_7uws0")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 2.23219, 0)
@@ -57,3 +53,6 @@ offset_bottom = 2.5
 grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("CanvasTexture_7uws0")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_t61fv")
