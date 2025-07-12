@@ -69,7 +69,7 @@ func _ready() -> void:
 	var env_res: Environment = world_env.environment
 	env_res.background_mode = Environment.BG_SKY               # включаем отрисовку неба
 	env_res.volumetric_fog_enabled = true                           # объёмный fog
-	env_res.volumetric_fog_density = 0.02                           # базовая плотность
+	env_res.volumetric_fog_density = 0.1                           # базовая плотность
 	env_res.volumetric_fog_sky_affect = 0.05                         # туман чуть затмевает небо
 
 

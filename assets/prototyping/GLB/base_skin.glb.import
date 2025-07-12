@@ -4,17 +4,17 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dnkoerv34er1q"
-path="res://.godot/imported/base_player.glb-dcd2c22851748ca812bc6cc63ba67cc2.scn"
+path="res://.godot/imported/base_skin.glb-1829d471492f0550d11b677dd3d2abe7.scn"
 
 [deps]
 
-source_file="res://assets/prototyping/GLB/base_player.glb"
-dest_files=["res://.godot/imported/base_player.glb-dcd2c22851748ca812bc6cc63ba67cc2.scn"]
+source_file="res://assets/prototyping/GLB/base_skin.glb"
+dest_files=["res://.godot/imported/base_skin.glb-1829d471492f0550d11b677dd3d2abe7.scn"]
 
 [params]
 
-nodes/root_type="CharacterBody3D"
-nodes/root_name=""
+nodes/root_type="Node3D"
+nodes/root_name="BaseSkin"
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false

@@ -1,0 +1,79 @@
+[gd_scene load_steps=22 format=3 uid="uid://cjordxtn6ffd5"]
+
+[ext_resource type="PackedScene" uid="uid://dnkoerv34er1q" path="res://assets/prototyping/GLB/base_skin.glb" id="1_as0hf"]
+[ext_resource type="Script" uid="uid://cm26ehwe3orju" path="res://scenes/characters/player/base_skin.gd" id="2_wqbkr"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7eic2"]
+animation = &"fall"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wqbkr"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_chptp"]
+animation = &"jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_5woxh"]
+animation = &"walk"
+use_custom_timeline = true
+timeline_length = 1.0
+stretch_time_scale = true
+start_offset = 0.0
+loop_mode = 1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7eic2"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wqbkr"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_5woxh"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_chptp"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_1olrt"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_g31pv"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cwvxm"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s5xhc"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_y1pwc"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jls3x"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_athpv"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_3rwmk"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_iirs2"]
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_wqbkr"]
+states/Fall/node = SubResource("AnimationNodeAnimation_7eic2")
+states/Fall/position = Vector2(326, 282)
+states/Idle/node = SubResource("AnimationNodeAnimation_wqbkr")
+states/Idle/position = Vector2(326, 126)
+states/Jump/node = SubResource("AnimationNodeAnimation_chptp")
+states/Jump/position = Vector2(516, 282)
+states/Move/node = SubResource("AnimationNodeAnimation_5woxh")
+states/Move/position = Vector2(516, 126)
+states/Start/position = Vector2(233, 126)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_7eic2"), "Idle", "Move", SubResource("AnimationNodeStateMachineTransition_wqbkr"), "Move", "Idle", SubResource("AnimationNodeStateMachineTransition_5woxh"), "Move", "Jump", SubResource("AnimationNodeStateMachineTransition_chptp"), "Jump", "Move", SubResource("AnimationNodeStateMachineTransition_1olrt"), "Idle", "Fall", SubResource("AnimationNodeStateMachineTransition_g31pv"), "Fall", "Idle", SubResource("AnimationNodeStateMachineTransition_cwvxm"), "Fall", "Jump", SubResource("AnimationNodeStateMachineTransition_s5xhc"), "Jump", "Fall", SubResource("AnimationNodeStateMachineTransition_y1pwc"), "Fall", "Move", SubResource("AnimationNodeStateMachineTransition_jls3x"), "Move", "Fall", SubResource("AnimationNodeStateMachineTransition_athpv"), "Jump", "Idle", SubResource("AnimationNodeStateMachineTransition_3rwmk"), "Idle", "Jump", SubResource("AnimationNodeStateMachineTransition_iirs2")]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_as0hf"]
+graph_offset = Vector2(-142.78, 23.006)
+nodes/StateMachine/node = SubResource("AnimationNodeStateMachine_wqbkr")
+nodes/StateMachine/position = Vector2(-60, 100)
+nodes/output/position = Vector2(440, 120)
+node_connections = [&"output", 0, &"StateMachine"]
+
+[node name="BaseSkin" instance=ExtResource("1_as0hf")]
+script = ExtResource("2_wqbkr")
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = "idle"
+
+[node name="AnimationTree" type="AnimationTree" parent="." index="2"]
+unique_name_in_owner = true
+root_node = NodePath("%AnimationTree/..")
+tree_root = SubResource("AnimationNodeBlendTree_as0hf")
+anim_player = NodePath("../AnimationPlayer")
