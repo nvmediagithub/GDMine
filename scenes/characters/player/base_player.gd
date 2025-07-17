@@ -7,9 +7,11 @@ extends CharacterBody3D
 @export var move_speed: float = 8.0
 @export var acceleration: float = 20.0
 @export var rotation_speed: float = 12.0
+@export var jump_impulse: float = 12.0
 
 var _camera_input_direction : Vector2 = Vector2.ZERO
 var _last_movement_direction : Vector3 = Vector3.BACK
+var _gravity: float = -30
 
 @onready var _camera_pivot: Node3D = %CameraPivot
 @onready var _camera: Node3D = %Camera3D
@@ -44,7 +46,14 @@ func _physics_process(delta: float) -> void:
     move_direction.y = 0.0
     move_direction = move_direction.normalized()
 
+    var y_velocity: float = velocity.y
+    velocity.y = 0.0
     velocity = velocity.move_toward(move_direction * move_speed, acceleration * delta)
+    velocity.y = y_velocity + _gravity * delta
+
+    var is_starting_jump: bool = Input.is_action_just_pressed("jump") and is_on_floor()
+
+
     move_and_slide() 
 
     if move_direction.length() > 0.2:
@@ -52,8 +61,14 @@ func _physics_process(delta: float) -> void:
     var target_angle: float = Vector3.BACK.signed_angle_to(_last_movement_direction, Vector3.UP)
     _skin.global_rotation.y = lerp_angle(_skin.rotation.y, target_angle, rotation_speed * delta)
 
-    var ground_speed: float = velocity.length()
-    if ground_speed > 0.0:
-        _skin.move()
-    else:
-        _skin.idle()
+    if is_starting_jump:
+        velocity.y += jump_impulse
+        _skin.jump()
+    elif not is_on_floor() and velocity.y < 0:
+        _skin.fall()
+    elif is_on_floor():
+        var ground_speed: float = velocity.length()
+        if ground_speed > 0.0:
+            _skin.move()
+        else:
+            _skin.idle()
