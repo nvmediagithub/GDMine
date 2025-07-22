@@ -1,99 +1,126 @@
-# Сценовый скрипт (например, прикреплён к корню сцены)
 extends Node3D
 
-# Цвета неба
-@export var day_length: float = 30.0                               # длина полного цикла в секундах
-@export var sky_top_gradient: Gradient = Gradient.new()            # цвет неба в зените
-@export var sky_horizon_gradient: Gradient = Gradient.new()        # цвет у горизонта
-@export var light_color_gradient: Gradient = Gradient.new()        # цвет DirectionalLight3D
-@export var light_energy_curve: Curve = Curve.new()                # яркость света в зависимости от времени
-@export var sky_energy_curve: Curve = Curve.new()                  # яркость градиента неба по времени
-@export var sun_angle_max: float = 30.0                            # угол диска солнца
-@export var sun_curve: float = 0.15                                # сглаживание края солнца
+# Управление шейдером неба и его параметрами из кода
 
-var sky_mat: ProceduralSkyMaterial
-var light_node: DirectionalLight3D
-var world_env: WorldEnvironment
+@export var day_length: float = 30.0                               # длина дня в секундах
+@export var sky_shader: Shader = preload("res://scenes/test/stylized_sky.gdshader")
+
+# Текстуры для облаков и звёзд
+@export var clouds_texture: Texture2D = load("res://scenes/test/noise.tres")
+@export var clouds_distort_texture: Texture2D = load("res://scenes/test/noise.tres")
+@export var clouds_noise_texture: Texture2D = load("res://scenes/test/noise.tres")
+@export var stars_texture: Texture2D = load("res://scenes/test/voronoi.tres")
+
+# Цвета градиентов (день / закат / ночь)
+@export var day_bottom_color: Color = Color(0.507643, 0.828123, 0.941873)
+@export var day_top_color:    Color = Color(0.505882, 0.827451, 0.941176)
+@export var sunset_bottom_color: Color = Color(0.624623, 0.379458, 0.274083)
+@export var sunset_top_color:    Color = Color(0.205718, 0.255085, 0.582273)
+@export var night_bottom_color: Color = Color(0.129936, 0.0757987, 0.172913)
+@export var night_top_color:    Color = Color(0, 0, 0)
+
+# Горизонт
+@export var horizon_color_day:    Color = Color(0.495828, 0.741677, 0.260391)
+@export var horizon_color_sunset: Color = Color(0.911657, 0.235353, 0.189874)
+@export var horizon_color_night:  Color = Color(0.227109, 0.00605149, 0.169566)
+@export var horizon_falloff: float = 0.7
+
+# Солнце и Луна
+@export var sun_col: Color = Color(0.945993, 0.923485, 0)
+@export var sun_size: float = 0.15
+@export var sun_blur: float = 0.5
+@export var moon_col: Color = Color(1,1,1)
+@export var moon_size: float = 0.15
+@export var moon_crescent_offset: float = 0.08
+
+# Облака
+@export var clouds_speed: float = 0.05
+@export var clouds_scale: float = 0.15
+@export var clouds_cutoff: float = 0.17
+@export var clouds_fuzziness: float = 0.2
+@export var clouds_main_color: Color = Color(1,1,1)
+@export var clouds_edge_color: Color = Color(0.316292, 0.673882, 0.615686)
+
+# Звёзды
+@export var stars_speed: float = 0.014
+@export var stars_cutoff: float = 0.925
+
+var shader_mat: ShaderMaterial
+@onready var world_env: WorldEnvironment = $WorldEnvironment
+@onready var light_node: DirectionalLight3D = $DirectionalLight3D
 
 func _ready() -> void:
-	for i: int in range(sky_top_gradient.get_point_count() - 1, -1, -1):
-		sky_top_gradient.remove_point(i)
-	sky_top_gradient.add_point(0.0, Color(0.05, 0.05, 0.2))   # тёмно-синий рассвет
-	sky_top_gradient.add_point(0.5, Color(0.2, 0.6, 1.0))     # голубое небо днём
-	sky_top_gradient.add_point(0.8, Color(0.1, 0.0, 0.2))     # фиолетовый закат
-	sky_top_gradient.add_point(1.0, Color(0.05, 0.05, 0.2))   # тёмно-синий рассвет
+    # Включаем seamless для NoiseTexture2D для бесшовного тайлинга
+    clouds_texture.seamless = true
+    clouds_distort_texture.seamless = true
+    clouds_noise_texture.seamless = true
+    stars_texture.seamless = true
+    # Опционально: настраиваем blend_skirt для лучшего перехода
+    clouds_texture.seamless_blend_skirt = 0.1
+    clouds_distort_texture.seamless_blend_skirt = 0.1
+    clouds_noise_texture.seamless_blend_skirt = 0.1
 
+    # Создаём и настраиваем ShaderMaterial
+    shader_mat = ShaderMaterial.new()
+    shader_mat.shader = sky_shader
 
-	for i: int in range(sky_horizon_gradient.get_point_count() - 1, -1, -1):
-		sky_horizon_gradient.remove_point(i)
-	sky_horizon_gradient.add_point(0.0, Color(0.8, 0.4, 0.2))
-	sky_horizon_gradient.add_point(0.5, Color(1.0, 0.8, 0.5))
-	sky_horizon_gradient.add_point(0.8, Color(0.05, 0.02, 0.1))
-	sky_horizon_gradient.add_point(1.0, Color(0.8, 0.4, 0.2))
+    # Задаём все uniform-параметры шейдера
+    shader_mat.set_shader_parameter("clouds_texture", clouds_texture)
+    shader_mat.set_shader_parameter("clouds_distort_texture", clouds_distort_texture)
+    shader_mat.set_shader_parameter("clouds_noise_texture", clouds_noise_texture)
+    shader_mat.set_shader_parameter("stars_texture", stars_texture)
 
-	light_energy_curve.clear_points()
-	light_energy_curve.add_point(Vector2(0.0, 0.2))
-	light_energy_curve.add_point(Vector2(0.4, 1.0))   # начало убывания
-	light_energy_curve.add_point(Vector2(0.6, 0.8))   # полумрак
-	light_energy_curve.add_point(Vector2(0.8, 0.4))   # почти ночь
-	light_energy_curve.add_point(Vector2(1.0, 0.2))
-	light_energy_curve.bake() # Ускоряем запросы sample()
-	
-	for i: int in range(light_color_gradient.get_point_count() - 1, -1, -1):
-		light_color_gradient.remove_point(i)
-	light_color_gradient.add_point(0.0, Color(0.2, 0.2, 0.6))   # ранний рассвет / поздний закат
-	light_color_gradient.add_point(0.25, Color(1.0, 0.95, 0.8)) # утро
-	light_color_gradient.add_point(0.5, Color(1.0, 1.0, 1.0))   # полдень
-	light_color_gradient.add_point(0.75, Color(1.0, 0.9, 0.7))  # вечер
-	light_color_gradient.add_point(1.0, Color(0.2, 0.2, 0.6))   # закат / ранняя ночь
+    # Градиенты дня/заката/ночи
+    shader_mat.set_shader_parameter("day_bottom_color", day_bottom_color)
+    shader_mat.set_shader_parameter("day_top_color", day_top_color)
+    shader_mat.set_shader_parameter("sunset_bottom_color", sunset_bottom_color)
+    shader_mat.set_shader_parameter("sunset_top_color", sunset_top_color)
+    shader_mat.set_shader_parameter("night_bottom_color", night_bottom_color)
+    shader_mat.set_shader_parameter("night_top_color", night_top_color)
 
-	sky_energy_curve.clear_points()
-	sky_energy_curve.add_point(Vector2(0.0, 0.1))   # ночь — почти не видно
-	sky_energy_curve.add_point(Vector2(0.2, 0.6))   # рассвет тусклый
-	sky_energy_curve.add_point(Vector2(0.5, 1.0))   # день — полная яркость
-	sky_energy_curve.add_point(Vector2(0.8, 0.6))   # закат
-	sky_energy_curve.add_point(Vector2(1.0, 0.1))   # ночь
-	sky_energy_curve.bake()
+    # Горизонт
+    shader_mat.set_shader_parameter("horizon_color_day", horizon_color_day)
+    shader_mat.set_shader_parameter("horizon_color_sunset", horizon_color_sunset)
+    shader_mat.set_shader_parameter("horizon_color_night", horizon_color_night)
+    shader_mat.set_shader_parameter("horizon_falloff", horizon_falloff)
 
-	# 1) Получаем ссылки на узлы
-	world_env = $WorldEnvironment                             # узел WorldEnvironment
-	light_node = $DirectionalLight3D                          # источник «солнца»
+    # Солнце/Луна
+    shader_mat.set_shader_parameter("sun_col", sun_col)
+    shader_mat.set_shader_parameter("sun_size", sun_size)
+    shader_mat.set_shader_parameter("sun_blur", sun_blur)
+    shader_mat.set_shader_parameter("moon_col", moon_col)
+    shader_mat.set_shader_parameter("moon_size", moon_size)
+    shader_mat.set_shader_parameter("moon_crescent_offset", moon_crescent_offset)
 
-	# 2) Создаём ProceduralSkyMaterial и задаём статичные параметры
-	sky_mat = ProceduralSkyMaterial.new()
-	sky_mat.sun_angle_max         = sun_angle_max
-	sky_mat.sun_curve             = sun_curve
-	# Начальная установка цветов будет в _process()
+    # Облака
+    shader_mat.set_shader_parameter("clouds_speed", clouds_speed)
+    shader_mat.set_shader_parameter("clouds_scale", clouds_scale)
+    shader_mat.set_shader_parameter("clouds_cutoff", clouds_cutoff)
+    shader_mat.set_shader_parameter("clouds_fuzziness", clouds_fuzziness)
+    shader_mat.set_shader_parameter("clouds_main_color", clouds_main_color)
+    shader_mat.set_shader_parameter("clouds_edge_color", clouds_edge_color)
 
-	# 3) Привязываем sky_mat к окружению
-	var env_res: Environment = world_env.environment
-	env_res.background_mode = Environment.BG_SKY               # включаем отрисовку неба
-	env_res.volumetric_fog_enabled = true                           # объёмный fog
-	env_res.volumetric_fog_density = 0.1                           # базовая плотность
-	env_res.volumetric_fog_sky_affect = 0.05                         # туман чуть затмевает небо
+    # Звёзды
+    shader_mat.set_shader_parameter("stars_speed", stars_speed)
+    shader_mat.set_shader_parameter("stars_cutoff", stars_cutoff)
 
+    # Настраиваем окружение
+    var env_res: Environment = world_env.environment
+    env_res.background_mode = Environment.BG_SKY
+    env_res.volumetric_fog_enabled = true
+    env_res.volumetric_fog_density = 0.1
+    env_res.volumetric_fog_sky_affect = 0.05
 
-
-	var sky_res: Sky = Sky.new()
-	sky_res.sky_material = sky_mat
-	env_res.sky = sky_res
-	world_env.environment = env_res
+    # Привязываем ShaderMaterial к Sky
+    var sky_res: Sky = Sky.new()
+    sky_res.sky_material = shader_mat
+    env_res.sky = sky_res
+    world_env.environment = env_res
 
 
 func _process(delta: float) -> void:
-	# 1) Нормируем время от 0.0 до 1.0, используя OS.get_ticks_msec()
-	var t_norm: float = fmod(Time.get_ticks_msec() / 1000.0, day_length) / day_length
-	
-	# 2) Вращаем DirectionalLight3D: от восхода (-90°) до заката (270°)
-	light_node.rotation_degrees.x = lerp(-90.0, 270.0, t_norm)                 # поворот солнца
+    # Вычисляем нормализованное время суток в диапазоне [0, 1]
+    var raw_norm: float = fmod(Time.get_ticks_msec() / 1000.0, day_length) / day_length
 
-	# 3) Обновляем цвет неба из Gradient
-	sky_mat.sky_top_color     = sky_top_gradient.sample(t_norm)
-	sky_mat.sky_horizon_color = sky_horizon_gradient.sample(t_norm)
-
-	# 4) Обновляем параметры солнца через DirectionalLight3D
-	light_node.light_color  = light_color_gradient.sample(t_norm)
-	light_node.light_energy = light_energy_curve.sample(t_norm)
-
-	# 5) Регулируем яркость неба
-	sky_mat.sky_energy_multiplier = sky_energy_curve.sample(t_norm)
+    # Устанавливаем угол солнца/ночи: 0 -> 0°, 1 -> 180°
+    light_node.rotation_degrees.x = raw_norm * 360.0

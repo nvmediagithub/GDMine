@@ -1,10 +1,75 @@
-[gd_scene load_steps=5 format=3 uid="uid://drlrtt7bd7545"]
+[gd_scene load_steps=17 format=3 uid="uid://drlrtt7bd7545"]
 
 [ext_resource type="Script" uid="uid://chycdl2nxtpwh" path="res://scenes/test/test_chunk_manager_level.gd" id="1_281c6"]
 [ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
+[ext_resource type="Shader" uid="uid://bwb06445frqqs" path="res://scenes/test/stylized_sky.gdshader" id="2_tiljc"]
 [ext_resource type="PackedScene" uid="uid://5m6n5fh7x8v1" path="res://scenes/characters/player/base_player.tscn" id="4_tiljc"]
 
+[sub_resource type="Gradient" id="Gradient_tiljc"]
+colors = PackedColorArray(1, 0, 0, 1, 1, 1, 1, 0)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tiljc"]
+frequency = 0.005
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_n6xd6"]
+color_ramp = SubResource("Gradient_tiljc")
+noise = SubResource("FastNoiseLite_tiljc")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_x2afa"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_03eax"]
+noise = SubResource("FastNoiseLite_x2afa")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gt6dw"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hbpdj"]
+noise = SubResource("FastNoiseLite_gt6dw")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_aydo3"]
+noise_type = 2
+frequency = 0.02
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_55fc3"]
+noise = SubResource("FastNoiseLite_aydo3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tiljc"]
+shader = ExtResource("2_tiljc")
+shader_parameter/day_bottom_color = Color(0.507643, 0.828123, 0.941873, 1)
+shader_parameter/day_top_color = Color(0.505882, 0.827451, 0.941176, 1)
+shader_parameter/sunset_bottom_color = Color(0.624623, 0.379458, 0.274083, 1)
+shader_parameter/sunset_top_color = Color(0.205718, 0.255085, 0.582273, 1)
+shader_parameter/night_bottom_color = Color(0.129936, 0.0757987, 0.172913, 1)
+shader_parameter/night_top_color = Color(0, 0, 0, 1)
+shader_parameter/horizon_color_day = Color(0.495828, 0.741677, 0.260391, 1)
+shader_parameter/horizon_color_sunset = Color(0.911657, 0.235353, 0.189874, 1)
+shader_parameter/horizon_color_night = Color(0.227109, 0.00605149, 0.169566, 1)
+shader_parameter/horizon_falloff = 0.7
+shader_parameter/sun_col = Color(0.945993, 0.923485, 0, 1)
+shader_parameter/sun_size = 0.15
+shader_parameter/sun_blur = 0.5
+shader_parameter/moon_col = Color(1, 1, 1, 1)
+shader_parameter/moon_size = 0.15
+shader_parameter/moon_crescent_offset = 0.0800001
+shader_parameter/clouds_texture = SubResource("NoiseTexture2D_hbpdj")
+shader_parameter/clouds_distort_texture = SubResource("NoiseTexture2D_n6xd6")
+shader_parameter/clouds_noise_texture = SubResource("NoiseTexture2D_03eax")
+shader_parameter/clouds_main_color = Color(1, 1, 1, 1)
+shader_parameter/clouds_edge_color = Color(0.316292, 0.673882, 0.615686, 1)
+shader_parameter/clouds_speed = 0.05
+shader_parameter/clouds_scale = 0.15
+shader_parameter/clouds_cutoff = 0.17
+shader_parameter/clouds_fuzziness = 0.2
+shader_parameter/stars_texture = SubResource("NoiseTexture2D_55fc3")
+shader_parameter/stars_cutoff = 0.925
+shader_parameter/stars_speed = 0.014
+
+[sub_resource type="Sky" id="Sky_n6xd6"]
+sky_material = SubResource("ShaderMaterial_tiljc")
+process_mode = 3
+
 [sub_resource type="Environment" id="Environment_281c6"]
+background_mode = 2
+sky = SubResource("Sky_n6xd6")
 
 [node name="TestChunkManagerLevel" type="Node3D"]
 script = ExtResource("1_281c6")
@@ -13,7 +78,7 @@ script = ExtResource("1_281c6")
 environment = SubResource("Environment_281c6")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.600336, 0.799748, 0, -0.799748, 0.600336, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, -0.63737, -0.770558, 0, 0.770558, -0.63737, 0, 0, 0)
 shadow_enabled = true
 directional_shadow_mode = 0
 
