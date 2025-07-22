@@ -1,3 +1,4 @@
+// https://godotshaders.com/shader/stylized-sky-shader-with-clouds/
 shader_type sky;
 render_mode use_half_res_pass;
 
