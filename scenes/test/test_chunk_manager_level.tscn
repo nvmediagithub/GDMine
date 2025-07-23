@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://drlrtt7bd7545"]
+[gd_scene load_steps=20 format=3 uid="uid://drlrtt7bd7545"]
 
 [ext_resource type="Script" uid="uid://chycdl2nxtpwh" path="res://scenes/test/test_chunk_manager_level.gd" id="1_281c6"]
 [ext_resource type="Script" uid="uid://c51eoh7ttnwpo" path="res://scripts/presentation/world/chunk_manager.gd" id="2_efiru"]
@@ -71,6 +71,21 @@ process_mode = 3
 background_mode = 2
 sky = SubResource("Sky_n6xd6")
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_n6xd6"]
+noise_type = 0
+frequency = 0.0025
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_03eax"]
+frequency = 0.015
+fractal_type = 2
+fractal_weighted_strength = 1.0
+metadata/_preview_in_3d_space_ = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hbpdj"]
+noise_type = 0
+frequency = 0.04
+metadata/_preview_in_3d_space_ = true
+
 [node name="TestChunkManagerLevel" type="Node3D"]
 script = ExtResource("1_281c6")
 
@@ -84,6 +99,9 @@ directional_shadow_mode = 0
 
 [node name="ChunkManager" type="Node3D" parent="."]
 script = ExtResource("2_efiru")
+height_noise = SubResource("FastNoiseLite_n6xd6")
+cave_noise = SubResource("FastNoiseLite_03eax")
+ore_noise = SubResource("FastNoiseLite_hbpdj")
 metadata/_custom_type_script = "uid://c51eoh7ttnwpo"
 
 [node name="BasePlayer" parent="." instance=ExtResource("4_tiljc")]

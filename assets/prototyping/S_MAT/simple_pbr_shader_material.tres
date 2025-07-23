@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://d03wo46oyeoyx"]
+
+[ext_resource type="Shader" uid="uid://bp7n7s5temtin" path="res://assets/prototyping/S_MAT/simple_pbr_shader.gdshader" id="1_3q8lc"]
+[ext_resource type="Texture2D" uid="uid://dt8djn8ky6duj" path="res://assets/prototyping/blocks_materials/cobblestone/t/cobblestone.png" id="2_fj7m3"]
+[ext_resource type="Texture2D" uid="uid://dwfqyxmbc33pd" path="res://assets/prototyping/blocks_materials/cobblestone/t/cobblestone_n.png" id="3_iykrk"]
+[ext_resource type="Texture2D" uid="uid://b2ftd3k8p42gf" path="res://assets/prototyping/blocks_materials/cobblestone/t/cobblestone_s.png" id="4_c51kk"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_3q8lc")
+shader_parameter/albedo_map = ExtResource("2_fj7m3")
+shader_parameter/normal_map = ExtResource("3_iykrk")
+shader_parameter/s_map = ExtResource("4_c51kk")
+shader_parameter/height_scale = 0.1

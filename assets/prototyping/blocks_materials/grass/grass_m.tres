@@ -1,0 +1,23 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://bhw21c8cwsgcw"]
+
+[ext_resource type="Texture2D" uid="uid://bgnuywh624qir" path="res://assets/prototyping/blocks_materials/grass/t/grass_block_top.png" id="1_6nku6"]
+[ext_resource type="Texture2D" uid="uid://ctervx1gr0j8m" path="res://assets/prototyping/blocks_materials/grass/t/grass_block_top_s.png" id="2_0am3n"]
+[ext_resource type="Texture2D" uid="uid://cdun1ccqj3wc4" path="res://assets/prototyping/blocks_materials/grass/t/grass_block_top_n.png" id="3_yrixf"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ifvgu"]
+load_path = "res://.godot/imported/cobblestone_s.png-150a18d4f9c26bb1ad3d78297fffdecb.s3tc.ctex"
+
+[resource]
+albedo_color = Color(0.32549, 0.568627, 0, 0.654902)
+albedo_texture = ExtResource("1_6nku6")
+normal_enabled = true
+normal_scale = 2.0
+normal_texture = ExtResource("3_yrixf")
+heightmap_enabled = true
+heightmap_scale = 10.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("2_0am3n")
+heightmap_flip_texture = true
+subsurf_scatter_texture = SubResource("CompressedTexture2D_ifvgu")

@@ -2,7 +2,10 @@
 extends Node
 class_name ChunkDataGenerator
 
-@export var noise: FastNoiseLite
+@export var cave_noise: FastNoiseLite
+@export var height_noise: FastNoiseLite
+@export var ore_noise: FastNoiseLite
+
 
 # TODO hueta
 var world_settings: WorldSettings = WorldSettings.new()
@@ -44,71 +47,110 @@ func generate_chunk(pos: Vector2i) -> ChunkData:
 		data.dirty_layers[y] = false
 	data.weight_fields = weight_fields
 	data.block_ids = block_ids
-	
-	# Нижний слой бедрока
-	data.dirty_layers[0] = true
-	for z: int in range(chunk_size + 1):
-		for x: int in range(chunk_size + 1):
-			block_ids[0][z][x] = BlockType.ID.BEDROCK
-			weight_fields[0][z][x] = 1.0
 
-	# Нижний слой
-	for y: int in range(1, min(5, slice_count)):
+
+	
+	# руды
+	for y: int in range(0, slice_count):
 		for z: int in range(chunk_size + 1):
 			for x: int in range(chunk_size + 1):
-				var weight: float = noise.get_noise_2d(
-					pos.y * chunk_size + z,
+				var weight_1: float = ore_noise.get_noise_3d(
 					pos.x * chunk_size + x,
-				) + 1.0 # Возвращает значение от -1 до 1
-				if weight > 0.5 + y * 0.25:
-					block_ids[y][z][x] = BlockType.ID.BEDROCK
-				else:
-					block_ids[y][z][x] = BlockType.ID.STONE
-				weight_fields[y][z][x] = weight
+					y,
+					pos.y * chunk_size + z,
+				) # Возвращает значение от -1 до 1
+				weight_1 = (weight_1 + 1.0) / 2
+
+				if weight_1 > 0.75:
+					block_ids[y][z][x] = BlockType.ID.COAL
 		data.dirty_layers[y] = true
 
-	# Нижние пещеры
-	for y: int in range(5, min(40, slice_count)):
+	# TODO вынести параметры высоты горы в settings
+	# Верхние горы
+	for y: int in range(0, slice_count):
 		for z: int in range(chunk_size + 1):
 			for x: int in range(chunk_size + 1):
-				var weight_1: float = noise.get_noise_2d(
+				var weight_1: float = height_noise.get_noise_2d(
 					pos.y * chunk_size + z,
-					pos.x * chunk_size + x,
-				) + 1.0 # Возвращает значение от -1 до 1
-				
-				var weight_2: float = noise.get_noise_3d(
-					pos.y * chunk_size + z,
-					y,
 					pos.x * chunk_size + x,
 				) # Возвращает значение от -1 до 1
-				if weight_2 > 0.25:
-					if weight_1 > y * 0.10:
+				weight_1 = (weight_1 + 1.0) / 2
+				var d: float = weight_1 - float(y) / float(slice_count)
+				if d > 0.05:
+					if block_ids[y][z][x] != BlockType.ID.COAL:
 						block_ids[y][z][x] = BlockType.ID.STONE
-					else:
-						block_ids[y][z][x] = BlockType.ID.EMPTY
-				elif weight_2 < -0.5:
-					block_ids[y][z][x] = BlockType.ID.COAL
 					weight_fields[y][z][x] = weight_1
-				else:
-					block_ids[y][z][x] = BlockType.ID.STONE
+				elif d > 0.015:
+					block_ids[y][z][x] = BlockType.ID.DIRT
 					weight_fields[y][z][x] = weight_1
-		data.dirty_layers[y] = true
-
-
-	# Верхние горы
-	for y: int in range(40, min(60, slice_count)):
-		for z: int in range(chunk_size + 1):
-			for x: int in range(chunk_size + 1):
-				var weight_1: float = noise.get_noise_2d(
-					pos.y * chunk_size + z,
-					pos.x * chunk_size + x,
-				) + 1.0 # Возвращает значение от -1 до 1
-				if weight_1 > y * 0.05:
-					block_ids[y][z][x] = BlockType.ID.STONE
+				elif d > 0.0:
+					block_ids[y][z][x] = BlockType.ID.GRASS
 					weight_fields[y][z][x] = weight_1
 				else:
 					block_ids[y][z][x] = BlockType.ID.EMPTY
 		data.dirty_layers[y] = true
 
+
+	# пещеры
+	for y: int in range(8, slice_count):
+		for z: int in range(chunk_size + 1):
+			for x: int in range(chunk_size + 1):
+				var weight_1: float = cave_noise.get_noise_3d(
+					pos.x * chunk_size + x,
+					y,
+					pos.y * chunk_size + z,
+				) # Возвращает значение от -1 до 1
+				weight_1 = (weight_1 + 1.0) / 2
+
+				if weight_1 > 0.83:
+					block_ids[y][z][x] = BlockType.ID.EMPTY
+					weight_fields[y][z][x] = 1.0
+		data.dirty_layers[y] = true
+
+	# # Нижние пещеры
+	# for y: int in range(5, min(40, slice_count)):
+	# 	for z: int in range(chunk_size + 1):
+	# 		for x: int in range(chunk_size + 1):
+	# 			var weight_1: float = noise.get_noise_2d(
+	# 				pos.y * chunk_size + z,
+	# 				pos.x * chunk_size + x,
+	# 			) + 1.0 # Возвращает значение от -1 до 1
+				
+	# 			var weight_2: float = noise.get_noise_3d(
+	# 				pos.y * chunk_size + z,
+	# 				y,
+	# 				pos.x * chunk_size + x,
+	# 			) # Возвращает значение от -1 до 1
+	# 			if weight_2 > 0.25:
+	# 				if weight_1 > y * 0.10:
+	# 					block_ids[y][z][x] = BlockType.ID.STONE
+	# 				else:
+	# 					block_ids[y][z][x] = BlockType.ID.EMPTY
+	# 			elif weight_2 < -0.5:
+	# 				block_ids[y][z][x] = BlockType.ID.COAL
+	# 				weight_fields[y][z][x] = weight_1
+	# 			else:
+	# 				block_ids[y][z][x] = BlockType.ID.STONE
+	# 				weight_fields[y][z][x] = weight_1
+	# 	data.dirty_layers[y] = true
+
+
+
+	# Нижний слой
+	for y: int in range(1, min(5, slice_count)):
+		for z: int in range(chunk_size + 1):
+			for x: int in range(chunk_size + 1):
+				var weight: float = height_noise.get_noise_2d(
+					pos.y * chunk_size + z,
+					pos.x * chunk_size + x,
+				) + 1.0 # Возвращает значение от -1 до 1
+				if weight > 0.5 + y * 0.25:
+					block_ids[y][z][x] = BlockType.ID.BEDROCK
+		data.dirty_layers[y] = true
+	# Нижний слой бедрока
+	data.dirty_layers[0] = true
+	for z: int in range(chunk_size + 1):
+		for x: int in range(chunk_size + 1):
+			block_ids[0][z][x] = BlockType.ID.BEDROCK
 
 	return data

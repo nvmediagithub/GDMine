@@ -5,6 +5,11 @@ class_name ChunkManager
 # TODO возможно стоит перенести в ServiceLocator
 @onready var world_settings: WorldSettings = WorldSettings.new()
 
+@export var height_noise: FastNoiseLite
+@export var cave_noise: FastNoiseLite
+@export var ore_noise: FastNoiseLite
+
+
 var dirty_chunks: Dictionary = {}
 var chunks: Dictionary = {}
 var mesh_worker: MeshGenerationWorker
@@ -28,8 +33,10 @@ func _ready() -> void:
 
 	# 2. Init generator
 	var generator: ChunkDataGenerator = ChunkDataGenerator.new()
-	generator.noise = FastNoiseLite.new()
-	generator.noise.frequency = 0.02
+	generator.height_noise = height_noise
+	generator.ore_noise = ore_noise
+	generator.cave_noise = cave_noise
+	# generator.noise.frequency = 0.02
 	# generator.noise.normalize = true
 
 	# 3. Init world

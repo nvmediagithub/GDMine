@@ -1,0 +1,22 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://cyd04r1jb1bpm"]
+
+[ext_resource type="Texture2D" uid="uid://dhqcvi0x8llil" path="res://assets/prototyping/blocks_materials/bedrock/t/black_concrete_powder.png" id="1_p1m0e"]
+[ext_resource type="Texture2D" uid="uid://dafr2ic4luyms" path="res://assets/prototyping/blocks_materials/bedrock/t/black_concrete_powder_s.png" id="2_jm7kl"]
+[ext_resource type="Texture2D" uid="uid://dch6nsma574cf" path="res://assets/prototyping/blocks_materials/bedrock/t/black_concrete_powder_n.png" id="3_1mwid"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ifvgu"]
+load_path = "res://.godot/imported/cobblestone_s.png-150a18d4f9c26bb1ad3d78297fffdecb.s3tc.ctex"
+
+[resource]
+albedo_texture = ExtResource("1_p1m0e")
+normal_enabled = true
+normal_scale = 2.0
+normal_texture = ExtResource("3_1mwid")
+heightmap_enabled = true
+heightmap_scale = 10.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("2_jm7kl")
+heightmap_flip_texture = true
+subsurf_scatter_texture = SubResource("CompressedTexture2D_ifvgu")

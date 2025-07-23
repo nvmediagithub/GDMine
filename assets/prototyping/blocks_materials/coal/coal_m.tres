@@ -1,0 +1,22 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://g6l35kwrd7na"]
+
+[ext_resource type="Texture2D" uid="uid://fdnr57i1l7pt" path="res://assets/prototyping/blocks_materials/coal/t/coal_ore.png" id="1_n0svq"]
+[ext_resource type="Texture2D" uid="uid://dlskvmvgrugn4" path="res://assets/prototyping/blocks_materials/coal/t/coal_ore_s.png" id="2_17mye"]
+[ext_resource type="Texture2D" uid="uid://3xd5wej8p3qv" path="res://assets/prototyping/blocks_materials/coal/t/coal_ore_n.png" id="3_0p1ui"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ifvgu"]
+load_path = "res://.godot/imported/cobblestone_s.png-150a18d4f9c26bb1ad3d78297fffdecb.s3tc.ctex"
+
+[resource]
+albedo_texture = ExtResource("1_n0svq")
+normal_enabled = true
+normal_scale = 2.0
+normal_texture = ExtResource("3_0p1ui")
+heightmap_enabled = true
+heightmap_scale = 10.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("2_17mye")
+heightmap_flip_texture = true
+subsurf_scatter_texture = SubResource("CompressedTexture2D_ifvgu")
